@@ -2,33 +2,33 @@
   <div class="song-list-header">
     <NavHeader title="歌单" linkTo="/" />
     <div class="cover-bg">
-      <img :src="changePicSize(coverBg || coverImgUrl, 250)" />
+      <img :src="changePicSize(state.coverBg || state.coverImgUrl, 250)" />
     </div>
     <div class="description">
       <div class="left-content">
-        <img :src="changePicSize(coverImgUrl, 150)" />
+        <img :src="changePicSize(state.coverImgUrl, 150)" />
         <div class="play-count">
           <i class="iconfont icon-bofang"></i>
-          {{ changeData(playCount) }}
+          {{ changeData(state.playCount) }}
         </div>
       </div>
       <div class="right-content">
-        <div class="album-name">{{ albumName }}</div>
+        <div class="album-name">{{ state.albumName }}</div>
         <div class="creator">
-          <img class="avatar" :src="creator.avatarUrl" />
-          <span class="nickname">{{ creator.nickname }}</span>
+          <img class="avatar" :src="state.creator.avatarUrl" />
+          <span class="nickname">{{ state.creator.nickname }}</span>
         </div>
-        <div class="album-desc">{{ description }}</div>
+        <div class="album-desc">{{ state.description }}</div>
       </div>
     </div>
     <div class="item-list">
       <div class="icon-item">
         <i class="iconfont icon-chat_active"></i>
-        <span>{{ commentCount }}</span>
+        <span>{{ state.commentCount }}</span>
       </div>
       <div class="icon-item">
         <i class="iconfont icon-fenxiang"></i>
-        <span>{{ shareCount }}</span>
+        <span>{{ state.shareCount }}</span>
       </div>
       <div class="icon-item">
         <i class="iconfont icon-xiazai"></i>
@@ -45,16 +45,10 @@
 <script>
 import { changeValue, getSizeImage } from '@/utils/formatData'
 import NavHeader from '../nav-header'
+import { onMounted, ref } from 'vue'
 export default {
   props: {
-    coverBg: { type: String },
-    coverImgUrl: { type: String, required: true },
-    albumName: { type: String, required: true },
-    description: { type: String, required: true },
-    playCount: { type: Number, required: true },
-    commentCount: { type: Number, required: true },
-    shareCount: { type: Number, required: true },
-    creator: { type: Object, required: true },
+    state: { type: Object, required: true },
   },
   components: {
     NavHeader,
@@ -80,26 +74,29 @@ export default {
 <style lang="less" scoped>
 .song-list-header {
   position: relative;
+  height: 6rem;
   .cover-bg {
     width: 7.5rem;
     height: 6.5rem;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: -99;
+    z-index: -999;
     img {
       width: 100%;
       height: 100%;
-      filter: blur(10px);
+      filter: blur(100px);
     }
   }
 
   .description {
     display: flex;
-    margin: 0.4rem 0.4rem;
+    padding: 0.4rem 0.4rem;
+    margin-top: 1rem;
 
     .left-content {
       position: relative;
+      z-index: -99;
       img {
         border-radius: 0.12rem;
         width: 3rem;
@@ -139,14 +136,14 @@ export default {
           display: block;
           height: 0.42rem;
           line-height: 0.42rem;
-          color: #e6dfdf;
-          font-size: 0.15rem;
+          color: #f2f2f2;
+          font-size: 0.2rem;
         }
       }
 
       .album-desc {
-        color: #cac1be;
-        font-size: 0.1rem;
+        color: #f2f2f2;
+        font-size: 0.15rem;
         display: -webkit-box;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -174,7 +171,7 @@ export default {
       }
 
       span {
-        color: #d4c4b8;
+        color: #f1f1f1;
         padding-top: 0.12rem;
         font-size: 0.26rem;
       }

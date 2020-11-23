@@ -11,11 +11,26 @@
           class="input"
           @keydown.enter="search"
           v-model="state.keyword"
-          placeholder="输入搜索歌曲"
+          :placeholder="state.defaultKeyword"
+          @focus="state.isFocus = true"
+          @blur="state.isFocus = false"
         />
       </form>
     </div>
-    <div class="history">
+    <!-- 搜索建议框 -->
+    <div class="search-suggest" v-show="state.isFocus && state.keyword">
+      <div class="suggest-item">搜索 "{{ state.keyword }}"</div>
+      <div
+        class="suggest-item"
+        v-for="(item, i) in state.searchSuggestList"
+        :key="i"
+      >
+        <i class="iconfont icon-search3-copy"></i>
+        {{ item.keyword }}
+      </div>
+    </div>
+    <!-- 历史搜索记录 -->
+    <div class="history" v-if="state.historySearch.length !== 0">
       <div class="left">历史</div>
       <div class="right" ref="rightHisRef">
         <div class="content" ref="keywordHisRef">
@@ -30,17 +45,44 @@
       </div>
       <i class="iconfont icon-detail" @click="clearHistory"></i>
     </div>
+
+    <!-- 热搜榜单 -->
+    <div class="hot-search">
+      <ItemHeader fontSize="0.3" title="热搜榜" :isShowRight="false" />
+      <div class="item-list">
+        <div class="item" v-for="(item, i) in state.hotSearchList" :key="i">
+          <div class="index">{{ i + 1 }}</div>
+          <div class="name">{{ item.searchWord }}</div>
+          <img v-if="item.iconUrl" class="icon" :src="item.iconUrl" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import BScroll from '@better-scroll/core'
 import { Dialog } from 'vant'
+import ItemHeader from '@/components/item-header'
 import { nextTick, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+
+import {
+  getDefaultKeyword,
+  getSearchSuggest,
+  getHotSearch,
+} from '@/service/api'
+import { debounce } from '@/utils/help'
 export default {
+  components: {
+    ItemHeader,
+  },
   setup() {
     const state = reactive({
       keyword: '',
+      defaultKeyword: '',
+      isFocus: false,
+      searchSuggestList: [],
+      hotSearchList: [],
       historySearch: [],
     })
     const rightHisRef = ref(null)
@@ -48,26 +90,52 @@ export default {
     const totalWidth = ref(0)
     const keywordItemDom = ref(null)
 
-    onBeforeMount(() => {
+    onBeforeMount(async () => {
       state.historySearch = localStorage.historySearch
         ? JSON.parse(localStorage.historySearch)
         : []
+
+      //获取默认搜索关键词
+      const res = await getDefaultKeyword()
+      // console.log(res)
+      state.defaultKeyword = res.data.realkeyword
+
+      //获取热门搜索列表
+      const hotSearch = await getHotSearch()
+      // console.log(hotSearch)
+      state.hotSearchList = hotSearch.data
     })
 
     onMounted(() => {
-      keywordItemDom.value = document.querySelectorAll('.keyword-item')
-      Array.from(keywordItemDom.value).forEach((ele) => {
-        totalWidth.value += ele.offsetWidth + 11
-      })
+      if (state.historySearch.length !== 0) {
+        keywordItemDom.value = document.querySelectorAll('.keyword-item')
+        Array.from(keywordItemDom.value).forEach((ele) => {
+          totalWidth.value += ele.offsetWidth + 11
+        })
 
-      //初始化better-scroll操作
-      keywordHisRef.value.style.width = totalWidth.value + 'px'
-      new BScroll(rightHisRef.value, {
-        scrollX: true,
-        scrollY: false,
-        click: true,
-      })
+        //初始化better-scroll操作
+        keywordHisRef.value.style.width = totalWidth.value + 'px'
+        new BScroll(rightHisRef.value, {
+          scrollX: true,
+          scrollY: false,
+          click: true,
+        })
+      }
     })
+
+    //监听关键词，输入关键词时触发搜索关键词提示，使用防抖函数
+    watch(
+      () => state.keyword,
+      debounce(async (newKeyword) => {
+        if (!state.keyword) {
+          state.searchSuggestList = []
+          return
+        }
+        const res = await getSearchSuggest(newKeyword)
+        state.searchSuggestList = res.result.allMatch
+        // console.log(state.searchSuggestList)
+      }, 100)
+    )
 
     function search() {
       state.historySearch.push(state.keyword)
@@ -93,12 +161,14 @@ export default {
       rightHisRef,
       keywordHisRef,
       clearHistory,
+      focus,
     }
   },
 }
 </script>
 
 <style lang="less" scoped>
+@import url('../../style.less');
 .search {
   width: 7.5rem;
   overflow: hidden;
@@ -106,10 +176,10 @@ export default {
   .nav-top {
     display: flex;
     align-items: center;
+    position: relative;
 
     .icon-back {
-      width: 0.5rem;
-      font-size: 0.5rem;
+      font-size: 0.48rem;
       margin-right: 0.2rem;
       color: #666;
     }
@@ -121,11 +191,43 @@ export default {
         width: 100%;
         border: none;
         border-bottom: 1px solid #ccc;
-        padding-bottom: 0.15rem;
+        padding-bottom: 0.06rem;
 
         &::placeholder {
           color: #a6a6a6;
         }
+      }
+    }
+  }
+
+  .search-suggest {
+    position: absolute;
+    width: 6.5rem;
+    height: auto;
+    left: 50%;
+    top: 1.1rem;
+    margin-left: -3.25rem;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0.1rem;
+    z-index: 99;
+
+    .suggest-item {
+      width: 100%;
+      padding: 0.2rem 0.2rem;
+      color: #888;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      border-bottom: 1px solid #f2f2f2;
+
+      &:first-child {
+        color: @themeColor;
+      }
+
+      .icon-search3-copy {
+        margin-right: 0.1rem;
+        color: #ccc;
       }
     }
   }
@@ -138,6 +240,7 @@ export default {
     .left {
       margin-right: 0.2rem;
       font-weight: 700;
+      font-size: 0.28rem;
       width: 0.6rem;
     }
 
@@ -161,8 +264,61 @@ export default {
   }
 
   .icon-detail {
-    font-size: 0.35rem;
+    font-size: 0.3rem;
     margin-left: 0.3rem;
+    color: #999;
+  }
+
+  .hot-search {
+    .item-header {
+      padding-left: 0;
+      margin: 0.5rem 0 0.15rem;
+    }
+
+    .item-list {
+      display: flex;
+      flex-wrap: wrap;
+      border-top: 1px solid #ececec;
+      padding-top: 0.15rem;
+      .item {
+        width: 50%;
+        padding: 0.12rem 0;
+        display: flex;
+        align-items: center;
+        font-size: 0.28rem;
+        &:hover {
+          background-color: #ccc;
+        }
+
+        // 让排行榜前三个的下标变红
+        &:nth-child(-n + 3) {
+          font-weight: 700;
+          .index {
+            color: #ff3a3a;
+          }
+        }
+
+        .index {
+          width: 0.6rem;
+          color: #888;
+        }
+
+        .name {
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          margin-right: 0.05rem;
+          color: #333;
+        }
+
+        .icon {
+          margin-left: 0.1rem;
+          margin-right: 0.4rem;
+          width: 0.28rem;
+          height: 0.2rem;
+        }
+      }
+    }
   }
 }
 </style>
@@ -171,5 +327,22 @@ export default {
 .van-dialog__confirm,
 .van-dialog__confirm:active {
   color: #0094f7;
+}
+
+// 动画效果
+.search-enter-active {
+  animation: search-in 0.6s;
+}
+
+@keyframes search-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

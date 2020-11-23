@@ -1,15 +1,6 @@
 <template>
   <div class="play-list">
-    <Header
-      :coverBg="state.coverBg"
-      :coverImgUrl="state.coverImgUrl"
-      :albumName="state.albumName"
-      :description="state.description"
-      :playCount="state.playCount"
-      :commentCount="state.commentCount"
-      :shareCount="state.shareCount"
-      :creator="state.creator"
-    />
+    <Header :state="state" />
     <PlayList
       :playList="state.playList"
       :tracks="state.tracks"
@@ -24,7 +15,7 @@ import { getAlbumListDetail } from '@/service/api'
 import Header from './cpns/header'
 import PlayList from './cpns/play-list'
 
-import { computed, onMounted, reactive } from 'vue'
+import { computed, nextTick, onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 export default {
@@ -35,7 +26,7 @@ export default {
 
   setup() {
     const state = reactive({
-      playList: [],
+      playList: {},
       coverBg: '',
       coverImgUrl: '',
       albumName: '',
@@ -53,7 +44,7 @@ export default {
     onMounted(async () => {
       const id = route.query.id
       const res = await getAlbumListDetail(id)
-      console.log(res)
+      // console.log(res)
 
       //传递给子组件的参数处理
       const list = res.playlist

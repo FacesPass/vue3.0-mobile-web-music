@@ -5,7 +5,7 @@ import store from './store'
 import '@/utils/rem'
 
 //vant组件引入
-import { Swipe, SwipeItem } from 'vant';
+import { Swipe, SwipeItem, Circle } from 'vant';
 
 const app = createApp(App)
 app.use(store)
@@ -16,6 +16,6 @@ app.mount('#app')
 app
   .use(Swipe)
   .use(SwipeItem)
-
+  .use(Circle)
 
 

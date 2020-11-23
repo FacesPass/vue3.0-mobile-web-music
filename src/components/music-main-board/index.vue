@@ -25,11 +25,13 @@
         src="@/assets/img/needle.png"
         alt=""
       />
-      <img class="play-circle" src="@/assets/img/playCircle.png" alt="" />
-      <img class="music-pic" :src="bg" />
+      <div class="cd-img" @click="showLyric">
+        <img class="play-circle" src="@/assets/img/playCircle.png" />
+        <img class="music-pic" :src="bg" />
+      </div>
     </div>
     <!-- 歌词列表 -->
-    <div class="lyric" v-show="isLyric" ref="lyricRef">
+    <div @click="showLyric" class="lyric" v-show="isLyric" ref="lyricRef">
       <p
         v-for="(item, i) in $store.getters.lyricList"
         :key="i"
@@ -112,7 +114,7 @@ export default {
   },
 
   setup() {
-    let isLyric = ref(true)
+    let isLyric = ref(false)
     const store = useStore()
 
     //控制播放上一首和一下首
@@ -123,23 +125,39 @@ export default {
       }
       let curSongIdx = store.state.currentSongIndex
       let newSongIdx = curSongIdx + num
+      if (newSongIdx > store.state.playList.length - 1) {
+        newSongIdx = 0
+      }
+      if (newSongIdx < 0) {
+        newSongIdx = store.state.playList.length - 1
+      }
       store.commit('CHANGE_CURRENT_SONG_INDEX', newSongIdx)
       store.commit(
         'CHANGE_CURRENT_SONG',
         store.state.playList[store.state.currentSongIndex]
       )
     }
+
+    function showLyric() {
+      if (!store.state.lyric) {
+        Toast('该歌曲暂无歌词')
+        return
+      }
+      isLyric.value = !isLyric.value
+    }
+
     return {
       isLyric,
       goPlay,
+      showLyric,
     }
   },
 }
 </script>
 
 <style lang="less" scoped>
+@import url('../../style.less');
 @fontColor: #fff;
-@themeColor: #81e0f3;
 .music-main-board {
   position: fixed;
   left: 0;
@@ -154,9 +172,10 @@ export default {
     top: 0;
     width: 100%;
     height: 100%;
+
     background-size: auto 100%;
     background-position: center;
-    filter: blur(50px);
+    filter: blur(70px);
   }
 
   .play-header,
@@ -257,6 +276,7 @@ export default {
     width: 7.5rem;
     height: 8rem;
     margin-top: 0.8rem;
+    padding: 0 0.25rem;
     overflow: scroll;
     text-align: center;
     position: absolute;
@@ -268,7 +288,7 @@ export default {
       font-size: 0.3rem;
     }
     .active {
-      color: @themeColor;
+      color: @lyricColor;
       font-size: 0.38rem;
       transition: all 1s ease;
     }

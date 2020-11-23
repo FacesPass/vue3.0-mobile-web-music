@@ -28,22 +28,33 @@
       />
     </transition>
 
-    <audio
-      :ref="audioRef"
-      :src="`https://music.163.com/song/media/outer/url?id=${store.state.currentSong.id}.mp3`"
-    ></audio>
+    <audio :ref="audioRef" :src="$store.state.currentSong.musicUrl"></audio>
   </div>
 </template>
 
 <script>
 import MusicMainBoard from '../music-main-board'
 import { getSizeImage } from '@/utils/formatData'
-import { onMounted, onUpdated, reactive } from 'vue'
-import { useStore } from 'vuex'
+import { onMounted, onUpdated, reactive, watch, ref, nextTick } from 'vue'
+import { useStore, mapState } from 'vuex'
 import { Toast } from 'vant'
+
 export default {
   components: {
     MusicMainBoard,
+  },
+  computed: {
+    ...mapState(['currentSong', 'currentTime']),
+  },
+
+  watch: {
+    currentSong(newVal) {
+      this.state.isPlaying = true
+      this.$nextTick(() => {
+        this.audioDom.play()
+      })
+      this.updateTime()
+    },
   },
 
   setup() {
@@ -56,13 +67,13 @@ export default {
       author: '',
     })
 
-    let audioDom
-    const audioRef = (el) => (audioDom = el)
+    const audioDom = ref(null)
+    const audioRef = (el) => (audioDom.value = el)
 
     onMounted(() => {
-      state.avatarUrl = getSizeImage(store.state.currentSong.al.picUrl, 150)
-      state.songName = store.state.currentSong.name
-      state.author = store.state.currentSong.al.name
+      state.avatarUrl = getSizeImage(store.state.currentSong.avatarUrl, 150)
+      state.songName = store.state.currentSong.songName
+      state.author = store.state.currentSong.author
 
       if (store.state.currentSong.id) {
         store.dispatch('GET_LYRIC', { id: store.state.currentSong.id })
@@ -70,9 +81,9 @@ export default {
     })
 
     onUpdated(() => {
-      state.songName = store.state.currentSong.name
-      state.avatarUrl = getSizeImage(store.state.currentSong.al.picUrl, 150)
-      state.author = store.state.currentSong.al.name
+      state.songName = store.state.currentSong.songName
+      state.avatarUrl = getSizeImage(store.state.currentSong.avatarUrl, 150)
+      state.author = store.state.currentSong.author
     })
 
     //控制播放或者暂停
@@ -84,12 +95,12 @@ export default {
       if (!state.isPlaying) {
         //播放歌曲
         state.isPlaying = true
-        audioDom.play()
+        audioDom.value.play()
         updateTime()
       } else {
         //暂停歌曲
         state.isPlaying = false
-        audioDom.pause()
+        audioDom.value.pause()
         clearInterval(store.state.intervalId)
       }
     }
@@ -97,7 +108,7 @@ export default {
     //更新歌词的时间
     function updateTime() {
       store.state.intervalId = setInterval(() => {
-        store.commit('CHANGE_CURRENT_TIME', audioDom.currentTime)
+        store.commit('CHANGE_CURRENT_TIME', audioDom.value.currentTime)
         // console.log(store.state.currentTime)
       }, 1000)
     }
@@ -117,6 +128,7 @@ export default {
     return {
       state,
       audioRef,
+      audioDom,
       playOrPause,
       store,
       showBoard,
@@ -165,6 +177,17 @@ export default {
   }
 
   .right {
+    display: flex;
+    align-items: center;
+
+    .van-circle {
+      position: absolute;
+      right: 0.925rem;
+      top: 0.225rem;
+      width: 0.6rem !important;
+      height: 0.6rem !important;
+      z-index: -5;
+    }
     .iconfont {
       font-size: 0.48rem;
     }

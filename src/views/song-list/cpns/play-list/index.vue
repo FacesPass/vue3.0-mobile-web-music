@@ -32,6 +32,7 @@
 import { changeValue } from '@/utils/formatData'
 import { nextTick, onUpdated } from 'vue'
 import { useStore } from 'vuex'
+
 export default {
   props: {
     subscribedCount: { type: Number, required: true },
@@ -52,8 +53,13 @@ export default {
 
     //播放一首歌
     function play(song) {
-      store.commit('CHANGE_CURRENT_SONG', song)
-      // store.dispatch('GET_LYRIC', { id: store.state.currentSong.id })
+      // console.log(song)
+      store.dispatch('GET_MUSIC_URL', {
+        id: song.id,
+        songName: song.name,
+        avatarUrl: song.al.picUrl,
+        author: song.al.name,
+      })
     }
 
     return {
@@ -99,6 +105,7 @@ export default {
   }
 
   .song-list {
+    background-color: #fff;
     .song-item {
       display: flex;
       justify-content: space-around;

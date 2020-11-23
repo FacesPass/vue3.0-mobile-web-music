@@ -1,6 +1,6 @@
 <template>
   <div class="song-album">
-    <ItemHeader title="发现好歌单" rightText="查看更多" />
+    <ItemHeader title="发现好歌单" rightText="查看更多" fontSize="0.35" />
     <div class="album-list" ref="albumListRef">
       <div class="content" ref="albumRef">
         <router-link

@@ -18,6 +18,10 @@ export function getAlbumListDetail(id) {
   return request.get(`/playlist/detail?id=${id}`)
 }
 
+//获取歌曲的播放链接，传入歌曲id
+export function getMusicUrl(id) {
+  return request.get(`/song/url?id=${id}`)
+}
 
 //获取歌词  传入歌曲id
 export function getLyric(id) {
@@ -30,6 +34,10 @@ export function getDefaultKeyword() {
   return request.get('/search/default')
 }
 
+//获取搜索建议
+export function getSearchSuggest(keyword) {
+  return request.get(`/search/suggest/?keywords=${keyword}&type=mobile`)
+}
 
 //获取热门搜索列表
 export function getHotSearch() {

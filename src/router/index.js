@@ -15,7 +15,8 @@ const routes = [
   {
     path: '/search',
     name: 'Search',
-    component: () => import('@/views/search')
+    component: () => import('@/views/search'),
+    meta: { transition: 'search' },
   },
 ]
 
