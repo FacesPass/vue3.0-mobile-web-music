@@ -24,5 +24,21 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+
+
+<style lang="less">
+//进入主页的动画效果
+.gohome-enter-active {
+  animation: home-enter 0.6s;
+}
+
+@keyframes home-enter {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
 </style>

@@ -5,7 +5,8 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: { transition: 'gohome' }
   },
   {
     path: '/songList',
@@ -18,6 +19,11 @@ const routes = [
     component: () => import('@/views/search'),
     meta: { transition: 'search' },
   },
+  {
+    path: '/searchMusicList',
+    name: 'SearchMusicList',
+    component: () => import('@/views/search-music-list')
+  }
 ]
 
 const router = createRouter({

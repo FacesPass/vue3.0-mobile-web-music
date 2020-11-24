@@ -1,6 +1,6 @@
 <template>
   <div class="song-list-header">
-    <NavHeader title="歌单" linkTo="/" />
+    <BackHeader title="歌单" linkTo="/" />
     <div class="cover-bg">
       <img :src="changePicSize(state.coverBg || state.coverImgUrl, 250)" />
     </div>
@@ -44,14 +44,14 @@
 
 <script>
 import { changeValue, getSizeImage } from '@/utils/formatData'
-import NavHeader from '../nav-header'
+import BackHeader from '@/components/back-header'
 import { onMounted, ref } from 'vue'
 export default {
   props: {
     state: { type: Object, required: true },
   },
   components: {
-    NavHeader,
+    BackHeader,
   },
 
   setup() {

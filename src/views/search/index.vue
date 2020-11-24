@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="nav-top">
-      <i class="iconfont icon-back" @click="$router.go(-1)"></i>
+      <i class="iconfont icon-back"></i>
       <form
         class="form"
         action="javascript:return true;"
@@ -13,17 +13,20 @@
           v-model="state.keyword"
           :placeholder="state.defaultKeyword"
           @focus="state.isFocus = true"
-          @blur="state.isFocus = false"
+          @blur="blurInput"
         />
       </form>
     </div>
     <!-- 搜索建议框 -->
     <div class="search-suggest" v-show="state.isFocus && state.keyword">
-      <div class="suggest-item">搜索 "{{ state.keyword }}"</div>
+      <div class="suggest-item" @click="clickSuggestItem(state.keyword)">
+        搜索 "{{ state.keyword }}"
+      </div>
       <div
         class="suggest-item"
         v-for="(item, i) in state.searchSuggestList"
         :key="i"
+        @click="clickSuggestItem(item.keyword)"
       >
         <i class="iconfont icon-search3-copy"></i>
         {{ item.keyword }}
@@ -63,8 +66,8 @@
 <script>
 import BScroll from '@better-scroll/core'
 import { Dialog } from 'vant'
-import ItemHeader from '@/components/item-header'
 import { nextTick, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import ItemHeader from '@/components/item-header'
 
 import {
   getDefaultKeyword,
@@ -72,6 +75,7 @@ import {
   getHotSearch,
 } from '@/service/api'
 import { debounce } from '@/utils/help'
+import { useRouter } from 'vue-router'
 export default {
   components: {
     ItemHeader,
@@ -89,6 +93,8 @@ export default {
     const keywordHisRef = ref(null)
     const totalWidth = ref(0)
     const keywordItemDom = ref(null)
+
+    const router = useRouter()
 
     onBeforeMount(async () => {
       state.historySearch = localStorage.historySearch
@@ -137,10 +143,37 @@ export default {
       }, 100)
     )
 
-    function search() {
+    function blurInput() {
+      setTimeout(() => {
+        state.isFocus = false
+      }, 300)
+    }
+
+    function clickSuggestItem(keyword) {
+      // console.log(keyword)
+      state.keyword = keyword
+
+      //每次搜索后就将搜索记录缓存到本地
       state.historySearch.push(state.keyword)
       localStorage.historySearch = JSON.stringify(state.historySearch)
-      state.keyword = ''
+      router.push({
+        path: '/searchMusicList',
+        query: { keyword: state.keyword },
+      })
+    }
+
+    function search() {
+      console.log(state.keyword)
+      if (!state.keyword.trim()) return
+      //每次搜索后就将搜索记录缓存到本地
+      state.historySearch.push(state.keyword)
+      localStorage.historySearch = JSON.stringify(state.historySearch)
+
+      //路由跳转到搜索音乐列表页面
+      router.push({
+        path: '/searchMusicList',
+        query: { keyword: state.keyword },
+      })
     }
 
     function clearHistory() {
@@ -158,10 +191,12 @@ export default {
     return {
       state,
       search,
+      focus,
       rightHisRef,
       keywordHisRef,
       clearHistory,
-      focus,
+      clickSuggestItem,
+      blurInput,
     }
   },
 }
@@ -229,6 +264,10 @@ export default {
         margin-right: 0.1rem;
         color: #ccc;
       }
+
+      &:hover {
+        background-color: #ccc;
+      }
     }
   }
 
@@ -259,6 +298,7 @@ export default {
         padding: 2px 6px;
         border-radius: 0.3rem;
         margin-right: 0.2rem;
+        white-space: nowrap;
       }
     }
   }
@@ -332,6 +372,7 @@ export default {
 // 动画效果
 .search-enter-active {
   animation: search-in 0.6s;
+  overflow: hidden;
 }
 
 @keyframes search-in {
