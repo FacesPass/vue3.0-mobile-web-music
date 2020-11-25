@@ -1,6 +1,6 @@
 <template>
   <div class="nav-header" :class="{ changeHeaderStyle: isScrollBottom }">
-    <div class="header-left" @click="$router.push(linkTo)">
+    <div class="header-left" @click="$router.go(-1)">
       <div class="back iconfont icon-back"></div>
       <div class="title">{{ title }}</div>
     </div>
@@ -23,13 +23,14 @@ export default {
       type: String,
       required: true,
     },
-    linkTo: {
-      type: String,
-      required: true,
+    //滚动到离顶部一定高度的时候就开始渐变
+    scrollHeight: {
+      type: Number,
+      requied: true,
     },
   },
 
-  setup() {
+  setup(props) {
     const isScrollBottom = ref(false)
 
     onMounted(() => {
@@ -45,12 +46,12 @@ export default {
         document.documentElement.scrollTop || document.body.scrollTop
       // console.log(scrollTop)
 
-      if (scrollTop > 200) {
+      if (scrollTop > props.scrollHeight) {
         isScrollBottom.value = true
       } else {
         isScrollBottom.value = false
       }
-    }, 30)
+    }, 20)
 
     return {
       isScrollBottom,

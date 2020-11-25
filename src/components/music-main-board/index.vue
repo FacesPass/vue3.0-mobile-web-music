@@ -58,7 +58,10 @@
       ></div>
       <!-- 下一首歌 -->
       <div class="iconfont icon-xiayishou" @click="goPlay(1)"></div>
-      <div class="iconfont icon-bofangliebiao1"></div>
+      <div
+        class="iconfont icon-bofangliebiao1"
+        @click="$emit('show-play-list')"
+      ></div>
     </div>
   </div>
 </template>
@@ -107,9 +110,11 @@ export default {
     },
     //当前歌词发生改变的时候，重新获取歌词
     currentSong(newVal) {
-      this.$store.dispatch('GET_LYRIC', {
-        id: this.$store.state.currentSong.id,
-      })
+      if (this.$store.state.playList.length !== 0) {
+        this.$store.dispatch('GET_LYRIC', {
+          id: this.$store.state.currentSong.id,
+        })
+      }
     },
   },
 
@@ -165,6 +170,7 @@ export default {
   width: 100vw;
   height: 100vh;
   background-color: @themeColor;
+  z-index: 999;
 
   .bg {
     position: absolute;

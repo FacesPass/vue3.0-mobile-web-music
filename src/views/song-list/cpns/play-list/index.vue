@@ -17,7 +17,7 @@
         <div class="index">{{ index + 1 }}</div>
         <div class="song-detail">
           <div class="song-name">{{ song.name }}</div>
-          <div class="song-author">{{ song.al.name }}</div>
+          <div class="song-author">{{ song.al.name || '未知' }}</div>
         </div>
         <div class="play-icon">
           <i class="iconfont icon-bofang" @click="play(song)"></i>
@@ -32,25 +32,21 @@
 import { changeValue } from '@/utils/formatData'
 import { nextTick, onUpdated } from 'vue'
 import { useStore } from 'vuex'
-
 export default {
   props: {
     subscribedCount: { type: Number, required: true },
     tracks: { type: Array, required: true },
   },
-
   setup(props) {
     const store = useStore()
     function changeData(val) {
       return changeValue(val)
     }
-
     //播放所有歌曲
     function playAllSongs() {
       store.commit('CHANGE_PLAY_LIST', props.tracks)
       // console.log(store.state.playList)
     }
-
     //播放一首歌
     function play(song) {
       // console.log(song)
@@ -61,7 +57,6 @@ export default {
         author: song.al.name,
       })
     }
-
     return {
       changeData,
       playAllSongs,
@@ -81,20 +76,17 @@ export default {
     background-color: #fff;
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
-
     .left {
       .icon-bofang {
         margin-right: 0.15rem;
         font-size: 0.4rem;
         vertical-align: middle;
       }
-
       .song-num {
         color: #b8b8b6;
         font-size: 0.26rem;
       }
     }
-
     .right {
       color: #fdf9f9;
       background-color: #f84040;
@@ -103,7 +95,6 @@ export default {
       font-size: 0.26rem;
     }
   }
-
   .song-list {
     background-color: #fff;
     .song-item {
@@ -112,43 +103,36 @@ export default {
       margin-bottom: 0.25rem;
       padding-bottom: 0.2rem;
       border-bottom: 1px solid #ccc;
-
       .index {
         width: 1rem;
         display: flex;
         justify-content: center;
         align-items: center;
       }
-
       .song-detail {
         width: 5rem;
         display: flex;
         flex-direction: column;
-
         .song-name {
           font-size: 0.28rem;
           text-overflow: ellipsis;
           overflow: hidden;
         }
-
         .song-author {
           font-size: 0.26rem;
           color: #a6a6a6;
         }
       }
-
       .play-icon {
         width: 1.5rem;
         display: flex;
         justify-content: space-around;
         align-items: center;
-
         .iconfont {
           font-size: 0.42rem;
           color: #a6a6a6;
         }
       }
-
       &:last-child {
         margin-bottom: 1.5rem;
         border: none;

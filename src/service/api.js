@@ -52,6 +52,19 @@ export function getHotSearch() {
 //limit : 返回数量 
 //type: 搜索类型；默认为 1 即单曲 
 //取值意义 : 1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频, 1018:综合
-export function search(keywords, limit = 40, type = 1) {
-  return request.get(`/search?keywords=${keywords}&limit=${limit}&type=${type}`)
+export function search(keywords, offset = 0, limit = 30, type = 1) {
+  return request.get(`/search?keywords=${keywords}&limit=${limit}&offset=${offset}&type=${type}`)
+}
+
+
+//获取歌手描述
+//传入歌手 id, 可获得歌手描述
+export function getArtistDesc(id) {
+  return request.get(`/artist/desc?id=${id}`)
+}
+
+//获取歌曲详情
+//传入音乐 id(支持多个 id, 用 , 隔开), 可获得歌曲详情(注意:歌曲封面现在需要通过专辑内容接口获取)
+export function getSongDetail(ids) {
+  return request.get(`/song/detail?ids=${ids}`)
 }

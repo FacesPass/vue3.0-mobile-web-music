@@ -11,7 +11,8 @@ const routes = [
   {
     path: '/songList',
     name: 'SongList',
-    component: () => import('@/views/song-list')
+    component: () => import('@/views/song-list'),
+    meta: { transition: 'songList' }
   },
   {
     path: '/search',

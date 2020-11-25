@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="nav-top">
-      <i class="iconfont icon-back"></i>
+      <i class="iconfont icon-back" @click="$router.go(-1)"></i>
       <form
         class="form"
         action="javascript:return true;"
@@ -19,14 +19,14 @@
     </div>
     <!-- 搜索建议框 -->
     <div class="search-suggest" v-show="state.isFocus && state.keyword">
-      <div class="suggest-item" @click="clickSuggestItem(state.keyword)">
+      <div class="suggest-item" @click="toSearchMusicList(state.keyword)">
         搜索 "{{ state.keyword }}"
       </div>
       <div
         class="suggest-item"
         v-for="(item, i) in state.searchSuggestList"
         :key="i"
-        @click="clickSuggestItem(item.keyword)"
+        @click="toSearchMusicList(item.keyword)"
       >
         <i class="iconfont icon-search3-copy"></i>
         {{ item.keyword }}
@@ -41,6 +41,7 @@
             class="keyword-item"
             v-for="(search, i) in state.historySearch"
             :key="i"
+            @click="toSearchMusicList(search, true)"
           >
             {{ search }}
           </div>
@@ -53,7 +54,12 @@
     <div class="hot-search">
       <ItemHeader fontSize="0.3" title="热搜榜" :isShowRight="false" />
       <div class="item-list">
-        <div class="item" v-for="(item, i) in state.hotSearchList" :key="i">
+        <div
+          @click="toSearchMusicList(item.searchWord)"
+          class="item"
+          v-for="(item, i) in state.hotSearchList"
+          :key="i"
+        >
           <div class="index">{{ i + 1 }}</div>
           <div class="name">{{ item.searchWord }}</div>
           <img v-if="item.iconUrl" class="icon" :src="item.iconUrl" />
@@ -149,19 +155,6 @@ export default {
       }, 300)
     }
 
-    function clickSuggestItem(keyword) {
-      // console.log(keyword)
-      state.keyword = keyword
-
-      //每次搜索后就将搜索记录缓存到本地
-      state.historySearch.push(state.keyword)
-      localStorage.historySearch = JSON.stringify(state.historySearch)
-      router.push({
-        path: '/searchMusicList',
-        query: { keyword: state.keyword },
-      })
-    }
-
     function search() {
       console.log(state.keyword)
       if (!state.keyword.trim()) return
@@ -175,6 +168,28 @@ export default {
         query: { keyword: state.keyword },
       })
     }
+
+    function toSearchMusicList(keyword, isLocalStorage = false) {
+      state.keyword = keyword
+
+      //每次搜索后就将搜索记录缓存到本地
+      if (!isLocalStorage) {
+        state.historySearch.push(state.keyword)
+        localStorage.historySearch = JSON.stringify(state.historySearch)
+      }
+      router.push({
+        path: '/searchMusicList',
+        query: { keyword: state.keyword },
+      })
+    }
+
+    // function clickHistoryItem(item) {
+    //   //路由跳转到搜索音乐列表页面
+    //   router.push({
+    //     path: '/searchMusicList',
+    //     query: { keyword: item },
+    //   })
+    // }
 
     function clearHistory() {
       Dialog.confirm({
@@ -195,7 +210,7 @@ export default {
       rightHisRef,
       keywordHisRef,
       clearHistory,
-      clickSuggestItem,
+      toSearchMusicList,
       blurInput,
     }
   },
@@ -206,6 +221,7 @@ export default {
 @import url('../../style.less');
 .search {
   width: 7.5rem;
+  height: 100vh;
   overflow: hidden;
   padding: 0.2rem;
   .nav-top {

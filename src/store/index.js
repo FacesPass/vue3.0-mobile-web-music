@@ -32,8 +32,10 @@ export default createStore({
       if (idx === -1) {
         state.currentSong = currentSong
         state.playList.push(currentSong)
+        state.currentSongIndex = state.playList.length - 1
       } else {
         state.currentSong = state.playList[idx]
+        state.currentSongIndex = idx
       }
     },
     //改变歌词信息
@@ -43,23 +45,68 @@ export default createStore({
     //改变播放时间
     CHANGE_CURRENT_TIME(state, time) {
       state.currentTime = time
+    },
+    //从播放列表中移除一首歌
+    REMOVE_ONE_SONG(state, index) {
+      // console.log(index, state.currentSongIndex, state.playList)
+      if (index === state.currentSongIndex) {
+        state.playList.splice(index, 1)
+        state.currentSongIndex = state.playList.length - 1
+        //如果删除列表中最后一首歌的时候，就将当前歌曲恢复初始化
+        if (state.currentSongIndex === -1) {
+          state.currentSong = {
+            songName: '暂无歌曲',
+            author: '暂无',
+            avatarUrl: require('@/assets/img/music.png'),
+            musicUrl: ''
+          }
+        } else {
+          state.currentSong = state.playList[state.currentSongIndex]
+        }
+      } else {
+        state.playList.splice(index, 1)
+        state.currentSongIndex = state.playList.length - 1
+      }
+    },
+    //清空播放列表
+    CLEAR_PLAY_LIST(state, playlaod) {
+      state.playList = []
+      state.currentSong = {
+        songName: '暂无歌曲',
+        author: '暂无',
+        avatarUrl: require('@/assets/img/music.png'),
+        musicUrl: ''
+      }
     }
   },
   actions: {
+    //获取歌词
     async GET_LYRIC(context, payload) {
       try {
         const res = await getLyric(payload.id)
         // console.log(res)
+        if (!res.lrc.lyric) {
+          Toast('该歌曲暂无歌词')
+          return
+        }
         context.commit('CHANGE_CURRENT_LYRIC', res.lrc.lyric)
       } catch (err) {
+        // console.log(err)
         Toast('该歌曲暂无歌词')
         context.commit('CHANGE_CURRENT_LYRIC', '')
       }
     },
+    //获取歌手描述
+    async GET_ARTIST_DESC(contetxt, payload) { },
+    //获取音乐URL
     async GET_MUSIC_URL(context, payload) {
       // console.log(payload)
       const res = await getMusicUrl(payload.id)
       // console.log(res)
+      if (!res.data[0].url) {
+        Toast('该歌曲暂时无法播放')
+        return
+      }
       let currentSong = Object.assign({}, payload, { musicUrl: res.data[0].url })
       context.commit('CHANGE_CURRENT_SONG', currentSong)
     }

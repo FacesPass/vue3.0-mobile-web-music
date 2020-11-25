@@ -2,7 +2,7 @@
   <van-swipe class="my-swipe" :autoplay="3000" indicator-color="orangered">
     <van-swipe-item v-for="(banner, i) in state.banners" :key="i">
       <img
-        :src="changePicSize(banner.imageUrl, 500, 200)"
+        v-lazy="changePicSize(banner.imageUrl, 500, 200)"
         :alt="banner.typeTitle"
       />
     </van-swipe-item>

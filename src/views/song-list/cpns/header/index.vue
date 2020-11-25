@@ -1,6 +1,6 @@
 <template>
   <div class="song-list-header">
-    <BackHeader title="歌单" linkTo="/" />
+    <BackHeader title="歌单" :scrollHeight="200" />
     <div class="cover-bg">
       <img :src="changePicSize(state.coverBg || state.coverImgUrl, 250)" />
     </div>

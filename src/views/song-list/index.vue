@@ -68,5 +68,19 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
+//进入主页的动画效果
+.songList-enter-active {
+  animation: song-enter 0.6s;
+}
+
+@keyframes song-enter {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
 </style>

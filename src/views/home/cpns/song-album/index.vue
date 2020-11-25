@@ -11,7 +11,7 @@
         >
           <div class="img-detail">
             <img
-              :src="changePicSize(album.picUrl, 200)"
+              v-lazy="changePicSize(album.picUrl, 200)"
               :alt="album.copywriter"
             />
             <span class="play-count">
