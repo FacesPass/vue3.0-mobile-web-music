@@ -36,4 +36,10 @@ body {
   width: 0.3rem;
   height: 0.3rem;
 }
+
+//确认框的确定按钮改颜色
+.van-dialog__confirm,
+.van-dialog__confirm:active {
+  color: #0094f7;
+}
 </style>

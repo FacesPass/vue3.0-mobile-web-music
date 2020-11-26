@@ -50,7 +50,7 @@ export default {
     //播放一首歌
     function play(song) {
       // console.log(song)
-      store.dispatch('GET_MUSIC_URL', {
+      store.dispatch('getMusicUrl', {
         id: song.id,
         songName: song.name,
         avatarUrl: song.al.picUrl,

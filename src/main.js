@@ -6,7 +6,7 @@ import '@/utils/rem'
 import VueLazyLoad from 'vue3-lazyload'
 
 //vant组件引入
-import { Swipe, SwipeItem, List, Popup, Slider } from 'vant';
+import { Swipe, SwipeItem, List, Popup, Slider, Circle } from 'vant';
 
 const app = createApp(App)
 app.use(store)
@@ -21,5 +21,6 @@ app
   .use(List)
   .use(Popup)
   .use(Slider)
+  .use(Circle)
 
 

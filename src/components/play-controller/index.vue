@@ -4,9 +4,10 @@
       <img :src="state.avatarUrl" />
       <div class="song-detail">
         <div class="name">{{ state.songName }}</div>
-        <div class="tip">横滑可以切换上下首哦</div>
+        <div class="tip">{{ state.author }}</div>
       </div>
     </div>
+
     <div class="right">
       <i
         class="iconfont play-status"
@@ -16,11 +17,24 @@
       <i class="iconfont icon-yinleliebiao-" @click="showPlayList"></i>
     </div>
 
+    <!-- 音乐播放进度条 -->
+    <van-slider
+      v-model="$store.state.currentTime"
+      active-color="#5292FE"
+      :max="$store.state.duration"
+      bar-height="1px"
+    >
+      <template #button> </template>
+    </van-slider>
+
+    <!-- 音乐主面板 -->
     <transition name="bounce">
       <MusicMainBoard
         v-show="state.showBoard"
         @back="hideBoard"
+        @change-progress="changeProgress"
         @show-play-list="showPlayList"
+        @play-again="playAgain"
         :bg="state.avatarUrl"
         :isPlaying="state.isPlaying"
         :playOrPause="playOrPause"
@@ -31,16 +45,21 @@
 
     <audio :ref="audioRef" :src="$store.state.currentSong.musicUrl"></audio>
 
+    <!-- 音乐播放列表弹框 -->
     <van-popup
       class="popup"
       v-model:show="isShowPlayList"
       :duration="0.08"
       position="bottom"
-      :style="{ height: '50%' }"
+      :style="{ height: '45%' }"
       ><div class="header">
         <div>
-          <i class="iconfont icon-xunhuanbofang1"></i>
-          <span class="text">播放列表</span>
+          <span class="text"
+            >播放列表
+            <span class="play-list-count"
+              >(共{{ $store.state.playList.length }}首)
+            </span>
+          </span>
         </div>
         <div>
           <i class="iconfont icon-detail" @click="clearPlayList"></i>
@@ -88,6 +107,7 @@ export default {
   },
 
   watch: {
+    //当前歌曲发生变化的时候就播放
     currentSong(newVal) {
       if (this.$store.state.playList.length !== 0) {
         this.state.isPlaying = true
@@ -96,16 +116,12 @@ export default {
           //在播放音乐后才能获得播放时长，所以这里设置延迟获取歌曲播放时长
           setTimeout(() => {
             this.$store.commit('changeDuration', this.audioDom.duration)
-          }, 500)
+          }, 1000)
         })
         this.updateTime()
       } else {
         this.state.isPlaying = false
       }
-    },
-    currentTime(newVal) {
-      //TODO
-      console.log(newVal)
     },
   },
 
@@ -117,6 +133,12 @@ export default {
       showBoard: false,
       songName: '',
       author: '',
+    })
+
+    //进度条颜色
+    const gradientColor = ref({
+      '0%': '#3fecff',
+      '100%': '#6149f6',
     })
 
     const isShowPlayList = ref(false)
@@ -135,7 +157,7 @@ export default {
       state.author = store.state.currentSong.author
 
       if (store.state.currentSong.id) {
-        store.dispatch('GET_LYRIC', { id: store.state.currentSong.id })
+        store.dispatch('getLyric', { id: store.state.currentSong.id })
       }
     })
 
@@ -171,7 +193,7 @@ export default {
       }
       store.state.intervalId = setInterval(() => {
         store.commit('changeCurrentTime', audioDom.value.currentTime)
-      }, 1000)
+      }, 800)
     }
 
     //显示音乐面板
@@ -226,8 +248,20 @@ export default {
       })
         .then(() => {
           //TODO
+          store.commit('clearPlayList')
         })
         .catch(() => {})
+    }
+
+    //拖动滚动条的时候就改变播放时间
+    function changeProgress(value) {
+      audioDom.value.currentTime = value
+    }
+
+    //让一首歌重新播放
+    function playAgain() {
+      audioDom.value.currentTime = 0
+      audioDom.value.play()
     }
 
     return {
@@ -236,6 +270,7 @@ export default {
       isCurrentPlay,
       audioRef,
       audioDom,
+      gradientColor,
       playOrPause,
       store,
       showBoard,
@@ -243,8 +278,10 @@ export default {
       updateTime,
       showPlayList,
       playSong,
+      changeProgress,
       removeSong,
       clearPlayList,
+      playAgain,
     }
   },
 }
@@ -292,14 +329,6 @@ export default {
     display: flex;
     align-items: center;
 
-    .van-circle {
-      position: absolute;
-      right: 0.925rem;
-      top: 0.225rem;
-      width: 0.6rem !important;
-      height: 0.6rem !important;
-      z-index: -5;
-    }
     .iconfont {
       font-size: 0.48rem;
     }
@@ -309,23 +338,35 @@ export default {
     }
   }
 
+  .van-slider {
+    position: absolute;
+    width: 7.5rem;
+    top: 0;
+    left: 0;
+  }
+
   .popup {
     .header {
       position: fixed;
       background-color: #fff;
-      width: 7.5rem;
+      width: 7.2rem;
       height: 1rem;
+      margin-left: 0.15rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 0.3rem;
-      z-index: 90;
+      padding: 0 0.1rem;
+      z-index: 999;
 
       .text {
         margin-left: 0.15rem;
         font-size: 0.32rem;
         color: #666;
         font-weight: 700;
+        .play-list-count {
+          font-size: 0.25rem;
+          color: #999;
+        }
       }
 
       .iconfont {
@@ -397,10 +438,10 @@ export default {
 }
 
 .bounce-enter-active {
-  animation: bounce-in 0.6s;
+  animation: bounce-in 0.3s;
 }
 .bounce-leave-active {
-  animation: bounce-in 0.6s reverse;
+  animation: bounce-in 0.3s reverse;
 }
 @keyframes bounce-in {
   0% {

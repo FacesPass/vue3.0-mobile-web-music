@@ -23,3 +23,8 @@ export function throttle(fn, wait = 100) {
   }
 }
 
+//获取范围内的随机一个数
+export function getRandomNum(length) {
+  return Math.round(Math.random() * length)
+}
+

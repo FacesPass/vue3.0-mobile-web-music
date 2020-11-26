@@ -156,10 +156,10 @@ export default {
     }
 
     function search() {
-      console.log(state.keyword)
+      // console.log(state.keyword)
       if (!state.keyword.trim()) return
       //每次搜索后就将搜索记录缓存到本地
-      state.historySearch.push(state.keyword)
+      state.historySearch.unshift(state.keyword)
       localStorage.historySearch = JSON.stringify(state.historySearch)
 
       //路由跳转到搜索音乐列表页面
@@ -174,7 +174,7 @@ export default {
 
       //每次搜索后就将搜索记录缓存到本地
       if (!isLocalStorage) {
-        state.historySearch.push(state.keyword)
+        state.historySearch.unshift(state.keyword)
         localStorage.historySearch = JSON.stringify(state.historySearch)
       }
       router.push({
@@ -380,11 +380,6 @@ export default {
 </style>
 
 <style lang="less">
-.van-dialog__confirm,
-.van-dialog__confirm:active {
-  color: #0094f7;
-}
-
 // 动画效果
 .search-enter-active {
   animation: search-in 0.6s;

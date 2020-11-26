@@ -81,7 +81,7 @@ export default {
 
       const { songs } = await getSongDetail(song.id)
 
-      store.dispatch('GET_MUSIC_URL', {
+      store.dispatch('getMusicUrl', {
         id: songs[0].id,
         songName: songs[0].name,
         avatarUrl: songs[0].al.picUrl,

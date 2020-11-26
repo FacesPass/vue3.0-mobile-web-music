@@ -1,11 +1,13 @@
 <template>
   <div class="music-main-board">
+    <!-- 背景图 -->
     <div
       class="bg"
       :style="{
         backgroundImage: `url(${bg})`,
       }"
     ></div>
+    <!-- 头部 -->
     <div class="play-header">
       <div class="header-left">
         <div class="back iconfont icon-back" @click="$emit('back')"></div>
@@ -18,6 +20,7 @@
         <div class="icon-item iconfont icon-fenxiang"></div>
       </div>
     </div>
+    <!-- 那一根条条 -->
     <div class="play-content" v-show="!isLyric">
       <img
         class="needle"
@@ -25,7 +28,8 @@
         src="@/assets/img/needle.png"
         alt=""
       />
-      <div class="cd-img" @click="showLyric">
+      <!-- 旋转的CD -->
+      <div :ref="rotateCdRef" class="cd-img" @click="showLyric">
         <img class="play-circle" src="@/assets/img/playCircle.png" />
         <img class="music-pic" :src="bg" />
       </div>
@@ -50,17 +54,23 @@
       <van-slider
         class="progress"
         v-model="$store.state.currentTime"
-        :max="this.$store.state.duration"
+        :max="Math.floor($store.state.duration)"
         bar-height="4px"
         active-color="#5292FE"
         button-size="12px"
+        @change="changeProgress"
       />
       <div class="duration">{{ formatTime(duration) }}</div>
     </div>
 
     <!-- 底部控制栏 -->
     <div class="play-footer">
-      <div class="iconfont icon-xunhuanbofang1"></div>
+      <!-- 播放顺序 -->
+      <div
+        class="sequnce iconfont"
+        :class="sequnceIcon"
+        @click="changeSequence"
+      ></div>
       <!-- 上一首歌 -->
       <div class="iconfont icon-shangyishou" @click="goPlay(-1)"></div>
       <div
@@ -79,11 +89,12 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { getCurrentInstance, ref } from 'vue'
 import { mapState, useStore } from 'vuex'
 import { Toast } from 'vant'
 
 import { secToMin } from '@/utils/formatData'
+import { getRandomNum, debounce } from '@/utils/help'
 export default {
   props: {
     bg: {
@@ -118,7 +129,7 @@ export default {
     currentTime(newVal) {
       //当当前时间等于结束时间的时候，就自动播放下一首
       if (
-        Math.floor(this.$store.state.currentTime) ===
+        Math.floor(this.$store.state.currentTime) >=
         Math.floor(this.$store.state.duration)
       ) {
         this.goPlay(1)
@@ -134,36 +145,73 @@ export default {
     //当前歌词发生改变的时候，重新获取歌词
     currentSong(newVal) {
       if (this.$store.state.playList.length !== 0) {
-        this.$store.dispatch('GET_LYRIC', {
+        this.$store.dispatch('getLyric', {
           id: this.$store.state.currentSong.id,
         })
       }
     },
+    isPlaying(newVal) {
+      if (newVal) {
+        this.rotateCdDom.style.webkitAnimationPlayState = 'running'
+      } else {
+        this.rotateCdDom.style.webkitAnimationPlayState = 'paused'
+      }
+    },
   },
 
-  setup() {
+  setup(props, context) {
     let isLyric = ref(false)
     const store = useStore()
 
-    //控制播放上一首和一下首
-    function goPlay(num) {
+    const rotateCdDom = ref(null)
+    const rotateCdRef = (el) => (rotateCdDom.value = el)
+
+    const sequnceIcon = ref('icon-xunhuanbofang1')
+
+    //控制播放上一首和一下首（加个防抖）
+    let goPlay = debounce(function (num) {
       if (store.state.playList.length === 0) {
         return
       }
-      let curSongIdx = store.state.currentSongIndex
-      let newSongIdx = curSongIdx + num
-      if (newSongIdx > store.state.playList.length - 1) {
-        newSongIdx = 0
+      if (store.state.playList.length === 1) {
+        context.emit('play-again')
+        return
       }
-      if (newSongIdx < 0) {
-        newSongIdx = store.state.playList.length - 1
+
+      switch (store.state.sequence) {
+        //顺序播放时
+        case 0:
+          let curSongIdx = store.state.currentSongIndex
+          let newSongIdx = curSongIdx + num
+          if (newSongIdx > store.state.playList.length - 1) {
+            newSongIdx = 0
+          }
+          if (newSongIdx < 0) {
+            newSongIdx = store.state.playList.length - 1
+          }
+          store.commit('changeCurrentSongIndex', newSongIdx)
+          store.commit('changeCurrentSong', store.state.playList[newSongIdx])
+          break
+        //随机播放时
+        case 1:
+          let idx = getRandomNum(store.state.playList.length)
+          console.log(idx, store.state.currentSongIndex)
+          if (idx === store.state.currentSongIndex) {
+            idx = getRandomNum(store.state.playList.length)
+          }
+          store.commit('changeCurrentSongIndex', idx)
+          store.commit('changeCurrentSong', store.state.playList[idx])
+          break
+        //单曲循环时
+        case 2:
+          let audioEl = document.querySelector('audio')
+          audioEl.currentTime = 0
+          audioEl.play()
+          break
+        default:
+          break
       }
-      store.commit('changeCurrentSongIndex', newSongIdx)
-      store.commit(
-        'changeCurrentSong',
-        store.state.playList[store.state.currentSongIndex]
-      )
-    }
+    }, 500)
 
     //切换歌词显示
     function showLyric() {
@@ -179,11 +227,40 @@ export default {
       return secToMin(time)
     }
 
+    //触发父组件中的改变进度条方法
+    function changeProgress(value) {
+      // console.log(value)
+      context.emit('change-progress', value)
+    }
+
+    //改变播放顺序
+    function changeSequence() {
+      store.commit('changeSequence')
+      switch (store.state.sequence) {
+        case 0:
+          sequnceIcon.value = 'icon-xunhuanbofang1'
+          break
+        case 1:
+          sequnceIcon.value = 'icon-suijibofang'
+          break
+        case 2:
+          sequnceIcon.value = 'icon-danquxunhuan1'
+          break
+        default:
+          sequnceIcon.value = 'icon-xunhuanbofang1'
+      }
+    }
+
     return {
       isLyric,
+      rotateCdDom,
+      rotateCdRef,
+      sequnceIcon,
       goPlay,
       showLyric,
       formatTime,
+      changeProgress,
+      changeSequence,
     }
   },
 }
@@ -289,21 +366,35 @@ export default {
       transform: rotate(0deg);
     }
 
-    .play-circle {
+    .cd-img {
       position: absolute;
-      width: 5rem;
-      top: 1.8rem;
-      left: 50%;
-      transform: translateX(-50%);
-    }
+      left: 20%;
+      top: 14vh;
+      animation: cd-rotate 10s linear infinite;
+      animation-play-state: paused;
 
-    .music-pic {
-      position: absolute;
-      width: 3.25rem;
-      left: 50%;
-      top: 2.72rem;
-      border-radius: 50%;
-      transform: translateX(-50%);
+      .play-circle {
+        width: 5rem;
+      }
+
+      .music-pic {
+        position: absolute;
+        width: 3.25rem;
+        left: 50%;
+        top: 0.85rem;
+        border-radius: 50%;
+        transform: translateX(-50%);
+      }
+
+      @keyframes cd-rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     }
   }
 
@@ -355,6 +446,10 @@ export default {
     align-items: center;
     padding: 0.5rem 0.4rem;
     color: @fontColor;
+
+    .sequnce {
+      width: 0.5rem;
+    }
 
     .iconfont {
       font-size: 0.4rem;
