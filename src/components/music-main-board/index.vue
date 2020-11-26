@@ -45,7 +45,19 @@
       </p>
     </div>
     <!-- 进度条 -->
-    <div class="progress"></div>
+    <div class="progress-ctrl">
+      <div class="current-time">{{ formatTime(currentTime) }}</div>
+      <van-slider
+        class="progress"
+        v-model="$store.state.currentTime"
+        :max="this.$store.state.duration"
+        bar-height="4px"
+        active-color="#5292FE"
+        button-size="12px"
+      />
+      <div class="duration">{{ formatTime(duration) }}</div>
+    </div>
+
     <!-- 底部控制栏 -->
     <div class="play-footer">
       <div class="iconfont icon-xunhuanbofang1"></div>
@@ -70,6 +82,8 @@
 import { ref } from 'vue'
 import { mapState, useStore } from 'vuex'
 import { Toast } from 'vant'
+
+import { secToMin } from '@/utils/formatData'
 export default {
   props: {
     bg: {
@@ -96,11 +110,20 @@ export default {
   },
 
   computed: {
-    ...mapState(['currentTime', 'currentSong']),
+    ...mapState(['currentTime', 'currentSong', 'duration']),
   },
+
   watch: {
-    //监听时间变化，让歌词滚动
+    //监听时间变化
     currentTime(newVal) {
+      //当当前时间等于结束时间的时候，就自动播放下一首
+      if (
+        Math.floor(this.$store.state.currentTime) ===
+        Math.floor(this.$store.state.duration)
+      ) {
+        this.goPlay(1)
+      }
+      //歌词滚动
       let el = document.querySelector('p.active')
       if (!el) return
       el.scrollIntoView({
@@ -125,7 +148,6 @@ export default {
     //控制播放上一首和一下首
     function goPlay(num) {
       if (store.state.playList.length === 0) {
-        Toast('当前暂无音乐')
         return
       }
       let curSongIdx = store.state.currentSongIndex
@@ -136,13 +158,14 @@ export default {
       if (newSongIdx < 0) {
         newSongIdx = store.state.playList.length - 1
       }
-      store.commit('CHANGE_CURRENT_SONG_INDEX', newSongIdx)
+      store.commit('changeCurrentSongIndex', newSongIdx)
       store.commit(
-        'CHANGE_CURRENT_SONG',
+        'changeCurrentSong',
         store.state.playList[store.state.currentSongIndex]
       )
     }
 
+    //切换歌词显示
     function showLyric() {
       if (!store.state.lyric) {
         Toast('该歌曲暂无歌词')
@@ -151,10 +174,16 @@ export default {
       isLyric.value = !isLyric.value
     }
 
+    //将歌词显示时间转化为分：秒的格式
+    function formatTime(time) {
+      return secToMin(time)
+    }
+
     return {
       isLyric,
       goPlay,
       showLyric,
+      formatTime,
     }
   },
 }
@@ -300,6 +329,22 @@ export default {
     }
   }
 
+  // 进度条
+  .progress-ctrl {
+    width: 7.5rem;
+    position: absolute;
+    bottom: 2rem;
+    display: flex;
+    align-items: center;
+    .current-time,
+    .duration {
+      width: 1.5rem;
+      text-align: center;
+      color: #fff;
+    }
+  }
+
+  // 底部控制
   .play-footer {
     width: 7.5rem;
     position: absolute;

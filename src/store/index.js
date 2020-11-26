@@ -15,18 +15,19 @@ export default createStore({
     lyric: '',  //歌词
     intervalId: '',  //定时器的id
     currentTime: '', //当前歌曲播放进度时间
+    duration: '',//当前播放歌曲的总时长
   },
   mutations: {
     //改变播放列表
-    CHANGE_PLAY_LIST(state, playList) {
+    changePlayList(state, playList) {
       state.playList = playList
     },
     //改变当前歌曲的下标
-    CHANGE_CURRENT_SONG_INDEX(state, songIndex) {
+    changeCurrentSongIndex(state, songIndex) {
       state.currentSongIndex = songIndex
     },
     //改变当前播放歌曲
-    CHANGE_CURRENT_SONG(state, currentSong) {
+    changeCurrentSong(state, currentSong) {
       //如果列表中没有这首歌了则添加进列表，有的话就直接播放
       let idx = state.playList.findIndex((item, i) => currentSong.id === item.id)
       if (idx === -1) {
@@ -39,15 +40,19 @@ export default createStore({
       }
     },
     //改变歌词信息
-    CHANGE_CURRENT_LYRIC(state, lyric) {
+    changeCurrentLyric(state, lyric) {
       state.lyric = lyric
     },
     //改变播放时间
-    CHANGE_CURRENT_TIME(state, time) {
+    changeCurrentTime(state, time) {
       state.currentTime = time
     },
+    //播放总时长
+    changeDuration(state, duration) {
+      state.duration = duration
+    },
     //从播放列表中移除一首歌
-    REMOVE_ONE_SONG(state, index) {
+    removeOneSong(state, index) {
       // console.log(index, state.currentSongIndex, state.playList)
       if (index === state.currentSongIndex) {
         state.playList.splice(index, 1)
@@ -69,7 +74,7 @@ export default createStore({
       }
     },
     //清空播放列表
-    CLEAR_PLAY_LIST(state, playlaod) {
+    clearPlayList(state, playlaod) {
       state.playList = []
       state.currentSong = {
         songName: '暂无歌曲',
@@ -89,11 +94,11 @@ export default createStore({
           Toast('该歌曲暂无歌词')
           return
         }
-        context.commit('CHANGE_CURRENT_LYRIC', res.lrc.lyric)
+        context.commit('changeCurrentLyric', res.lrc.lyric)
       } catch (err) {
         // console.log(err)
         Toast('该歌曲暂无歌词')
-        context.commit('CHANGE_CURRENT_LYRIC', '')
+        context.commit('changeCurrentLyric', '')
       }
     },
     //获取歌手描述
@@ -108,7 +113,7 @@ export default createStore({
         return
       }
       let currentSong = Object.assign({}, payload, { musicUrl: res.data[0].url })
-      context.commit('CHANGE_CURRENT_SONG', currentSong)
+      context.commit('changeCurrentSong', currentSong)
     }
   },
 

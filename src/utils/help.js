@@ -22,3 +22,4 @@ export function throttle(fn, wait = 100) {
     }
   }
 }
+

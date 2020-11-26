@@ -29,14 +29,15 @@
       />
     </transition>
 
+    <audio :ref="audioRef" :src="$store.state.currentSong.musicUrl"></audio>
+
     <van-popup
       class="popup"
-      v-model:show="show"
-      position="bottom"
+      v-model:show="isShowPlayList"
       :duration="0.08"
+      position="bottom"
       :style="{ height: '50%' }"
-    >
-      <div class="header">
+      ><div class="header">
         <div>
           <i class="iconfont icon-xunhuanbofang1"></i>
           <span class="text">播放列表</span>
@@ -66,11 +67,8 @@
           <div class="play-icon">
             <i class="iconfont icon-yichu" @click.stop="removeSong(i)"></i>
           </div>
-        </div>
-      </div>
-    </van-popup>
-
-    <audio :ref="audioRef" :src="$store.state.currentSong.musicUrl"></audio>
+        </div></div
+    ></van-popup>
   </div>
 </template>
 
@@ -78,7 +76,7 @@
 import MusicMainBoard from '../music-main-board'
 import { getSizeImage } from '@/utils/formatData'
 import { onMounted, onUpdated, reactive, watch, ref, nextTick } from 'vue'
-import { useStore, mapState } from 'vuex'
+import { useStore, mapState, mapMutations } from 'vuex'
 import { Toast, Dialog } from 'vant'
 
 export default {
@@ -95,9 +93,10 @@ export default {
         this.state.isPlaying = true
         this.$nextTick(() => {
           this.audioDom.play()
+          //在播放音乐后才能获得播放时长，所以这里设置延迟获取歌曲播放时长
           setTimeout(() => {
-            console.log(this.audioDom.duration)
-          }, 100)
+            this.$store.commit('changeDuration', this.audioDom.duration)
+          }, 500)
         })
         this.updateTime()
       } else {
@@ -105,6 +104,7 @@ export default {
       }
     },
     currentTime(newVal) {
+      //TODO
       console.log(newVal)
     },
   },
@@ -119,7 +119,8 @@ export default {
       author: '',
     })
 
-    const show = ref(false)
+    const isShowPlayList = ref(false)
+
     const isCurrentPlay = ref(false)
     const activeEl = ref(null)
 
@@ -165,9 +166,11 @@ export default {
 
     //更新歌词的时间
     function updateTime() {
+      if (store.state.intervalId) {
+        clearInterval(store.state.intervalId)
+      }
       store.state.intervalId = setInterval(() => {
-        store.commit('CHANGE_CURRENT_TIME', audioDom.value.currentTime)
-        // console.log(store.state.currentTime)
+        store.commit('changeCurrentTime', audioDom.value.currentTime)
       }, 1000)
     }
 
@@ -185,11 +188,12 @@ export default {
 
     //显示播放列表
     function showPlayList() {
-      show.value = !show.value
+      isShowPlayList.value = !isShowPlayList.value
+
       //让播放列表滚动到当前播放的歌的位置
       nextTick(() => {
         let activeEl = document.querySelector('.playActive')
-        // console.log(activeEl)
+        if (!activeEl) return
         activeEl.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -199,15 +203,15 @@ export default {
 
     //播放音乐列表里的歌
     function playSong(song, i) {
-      store.commit('CHANGE_CURRENT_SONG', song)
-      store.commit('CHANGE_CURRENT_SONG_INDEX', i)
+      store.commit('changeCurrentSong', song)
+      store.commit('changeCurrentSongIndex', i)
       // console.log(store.state.currentSongIndex)
     }
 
     //移除一首播放列表里的歌
     function removeSong(songIndex) {
       // console.log(songIndex)
-      store.commit('REMOVE_ONE_SONG', songIndex)
+      store.commit('removeOneSong', songIndex)
     }
 
     //清空播放列表
@@ -218,18 +222,17 @@ export default {
       }
       Dialog.confirm({
         // title: '标题',
-        message: '是否清空全部历史记录？',
+        message: '是否清空播放列表？',
       })
         .then(() => {
-          localStorage.clear('historySearch')
-          state.historySearch = []
+          //TODO
         })
         .catch(() => {})
     }
 
     return {
       state,
-      show,
+      isShowPlayList,
       isCurrentPlay,
       audioRef,
       audioDom,

@@ -44,7 +44,7 @@ export default {
     }
     //播放所有歌曲
     function playAllSongs() {
-      store.commit('CHANGE_PLAY_LIST', props.tracks)
+      store.commit('changePlayList', props.tracks)
       // console.log(store.state.playList)
     }
     //播放一首歌
