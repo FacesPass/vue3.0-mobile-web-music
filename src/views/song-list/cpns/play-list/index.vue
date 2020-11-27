@@ -13,14 +13,19 @@
     </div>
 
     <div class="song-list">
-      <div class="song-item" v-for="(song, index) in tracks" :key="song.id">
+      <div
+        class="song-item"
+        :class="{ 'play-active': song.id === $store.state.currentSong.id }"
+        @click="play(song)"
+        v-for="(song, index) in tracks"
+        :key="song.id"
+      >
         <div class="index">{{ index + 1 }}</div>
         <div class="song-detail">
           <div class="song-name">{{ song.name }}</div>
           <div class="song-author">{{ song.al.name || '未知' }}</div>
         </div>
         <div class="play-icon">
-          <i class="iconfont icon-bofang" @click="play(song)"></i>
           <i class="iconfont icon-shenglvehao"></i>
         </div>
       </div>
@@ -49,7 +54,7 @@ export default {
     }
     //播放一首歌
     function play(song) {
-      // console.log(song)
+      console.log(song)
       store.dispatch('getMusicUrl', {
         id: song.id,
         songName: song.name,
@@ -100,8 +105,7 @@ export default {
     .song-item {
       display: flex;
       justify-content: space-around;
-      margin-bottom: 0.25rem;
-      padding-bottom: 0.2rem;
+      padding: 0.2rem 0;
       border-bottom: 1px solid #ccc;
       .index {
         width: 1rem;
@@ -137,6 +141,11 @@ export default {
         margin-bottom: 1.5rem;
         border: none;
       }
+    }
+
+    .play-active {
+      background-color: rgba(82, 146, 254, 0.3);
+      border-radius: 0.05rem;
     }
   }
 }

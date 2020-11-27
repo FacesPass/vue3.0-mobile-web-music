@@ -21,6 +21,8 @@
     >
       <div
         class="song-item"
+        :class="{ 'play-active': song.id === $store.state.currentSong.id }"
+        @click="play(song)"
         v-for="(song, index) in state.songsList"
         :key="song.album.id"
       >
@@ -30,7 +32,6 @@
           <div class="song-author">{{ getAuthor(song.artists) }}</div>
         </div>
         <div class="play-icon">
-          <i class="iconfont icon-bofang" @click="play(song)"></i>
           <i class="iconfont icon-shenglvehao"></i>
         </div>
       </div>
@@ -159,8 +160,7 @@ export default {
     .song-item {
       display: flex;
       justify-content: space-around;
-      margin-bottom: 0.25rem;
-      padding-bottom: 0.2rem;
+      padding: 0.2rem 0;
       border-bottom: 1px solid #ccc;
       .index {
         width: 1rem;
@@ -196,6 +196,10 @@ export default {
         margin-bottom: 1.5rem;
         border: none;
       }
+    }
+    .play-active {
+      background-color: rgba(82, 146, 254, 0.3);
+      border-radius: 0.05rem;
     }
   }
 }
