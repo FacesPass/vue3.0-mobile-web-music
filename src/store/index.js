@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import { getLyric, getMusicUrl } from '../service/api'
+import { parseLyric } from '../utils/formatLyrics'
 import { Toast } from 'vant'
 
 export default createStore({
@@ -137,31 +138,8 @@ export default createStore({
 
   getters: {
     lyricList(state) {
-      let arr = state.lyric.split(/\n/gis).map((item, i, arr) => {
-        //分钟
-        let min = item.slice(1, 3)
-        //秒
-        let sec = item.slice(4, 6)
-        //毫秒
-        let mil = item.slice(7, 9)
-
-        return {
-          min, sec, mil,
-          lyric: item.slice(10, item.length).replace(']', ''),
-          item,
-          //将时间转成时间戳
-          time: parseInt(mil) + parseInt(sec) * 1000 + parseInt(min) * 60 * 1000
-        }
-      })
-
-      //计算下一段时间，用于当前歌词的高亮展示
-      arr.forEach((item, i) => {
-        if (i !== arr.length - 1) {
-          item.nextTime = arr[i + 1].time
-        }
-      })
-      // console.log(arr)
-      return arr
+      const lyrics = parseLyric(state.lyric)
+      return lyrics
     }
   },
   modules: {

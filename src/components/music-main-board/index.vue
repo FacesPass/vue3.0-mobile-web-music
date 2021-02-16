@@ -1,16 +1,15 @@
 <template>
   <div class="music-main-board">
     <!-- 背景图 -->
-    <div
-      class="bg"
-      :style="{
+    <div class="bg"
+         :style="{
         backgroundImage: `url(${bg})`,
-      }"
-    ></div>
+      }"></div>
     <!-- 头部 -->
     <div class="play-header">
       <div class="header-left">
-        <div class="back iconfont icon-back" @click="$emit('back')"></div>
+        <div class="back iconfont icon-back"
+             @click="$emit('back')"></div>
         <div class="header-center">
           <div class="name">{{ songName }}</div>
           <div class="author">{{ author }}</div>
@@ -21,75 +20,73 @@
       </div>
     </div>
     <!-- 那一根条条 -->
-    <div class="play-content" v-show="!isLyric">
-      <img
-        class="needle"
-        :class="[isPlaying ? 'active' : '']"
-        src="@/assets/img/needle.png"
-        alt=""
-      />
+    <div class="play-content"
+         v-show="!isLyric">
+      <img class="needle"
+           :class="[isPlaying ? 'active' : '']"
+           src="@/assets/img/needle.png"
+           alt="" />
       <!-- 旋转的CD -->
-      <div :ref="rotateCdRef" class="cd-img" @click="showLyric">
-        <img class="play-circle" src="@/assets/img/playCircle.png" />
-        <img class="music-pic" :src="bg" />
+      <div :ref="rotateCdRef"
+           class="cd-img"
+           @click="showLyric">
+        <img class="play-circle"
+             src="@/assets/img/playCircle.png" />
+        <img class="music-pic"
+             :src="bg" />
       </div>
     </div>
     <!-- 歌词列表 -->
-    <div @click="showLyric" class="lyric" v-show="isLyric" ref="lyricRef">
-      <p
-        v-for="(item, i) in $store.getters.lyricList"
-        :key="i"
-        :class="{
+    <div @click="showLyric"
+         class="lyric"
+         v-show="isLyric"
+         ref="lyricRef">
+      <p v-for="(item, i) in $store.getters.lyricList"
+         :key="i"
+         :class="{
           active:
             currentTime * 1000 >= item.time &&
             currentTime * 1000 < item.nextTime,
-        }"
-      >
+        }">
         {{ item.lyric }}
       </p>
     </div>
     <!-- 进度条 -->
     <div class="progress-ctrl">
       <div class="current-time">{{ formatTime(currentTime) }}</div>
-      <van-slider
-        class="progress"
-        v-model="$store.state.currentTime"
-        :max="Math.floor($store.state.duration)"
-        bar-height="4px"
-        active-color="#5292FE"
-        button-size="12px"
-        @change="changeProgress"
-      />
+      <van-slider class="progress"
+                  v-model="$store.state.currentTime"
+                  :max="Math.floor($store.state.duration)"
+                  bar-height="4px"
+                  active-color="#5292FE"
+                  button-size="12px"
+                  @change="changeProgress" />
       <div class="duration">{{ formatTime(duration) }}</div>
     </div>
 
     <!-- 底部控制栏 -->
     <div class="play-footer">
       <!-- 播放顺序 -->
-      <div
-        class="sequnce iconfont"
-        :class="sequnceIcon"
-        @click="changeSequence"
-      ></div>
+      <div class="sequnce iconfont"
+           :class="sequnceIcon"
+           @click="changeSequence"></div>
       <!-- 上一首歌 -->
-      <div class="iconfont icon-shangyishou" @click="goPlay(-1)"></div>
-      <div
-        class="play iconfont"
-        :class="[isPlaying ? 'icon-zanting' : 'icon-bofang1']"
-        @click="playOrPause"
-      ></div>
+      <div class="iconfont icon-shangyishou"
+           @click="goPlay(-1)"></div>
+      <div class="play iconfont"
+           :class="[isPlaying ? 'icon-zanting' : 'icon-bofang1']"
+           @click="playOrPause"></div>
       <!-- 下一首歌 -->
-      <div class="iconfont icon-xiayishou" @click="goPlay(1)"></div>
-      <div
-        class="iconfont icon-bofangliebiao1"
-        @click="$emit('show-play-list')"
-      ></div>
+      <div class="iconfont icon-xiayishou"
+           @click="goPlay(1)"></div>
+      <div class="iconfont icon-bofangliebiao1"
+           @click="$emit('show-play-list')"></div>
     </div>
   </div>
 </template>
 
 <script>
-import { getCurrentInstance, ref } from 'vue'
+import { ref } from 'vue'
 import { mapState, useStore } from 'vuex'
 import { Toast } from 'vant'
 
@@ -267,7 +264,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import url('../../style.less');
+@import url("../../style.less");
 @fontColor: #fff;
 .music-main-board {
   position: fixed;
