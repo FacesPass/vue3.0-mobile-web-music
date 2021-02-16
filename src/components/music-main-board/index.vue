@@ -118,7 +118,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['currentTime', 'currentSong', 'duration']),
+    ...mapState(['currentTime', 'currentSong', 'duration', 'playList']),
   },
 
   watch: {
@@ -126,8 +126,8 @@ export default {
     currentTime(newVal) {
       //当当前时间等于结束时间的时候，就自动播放下一首
       if (
-        Math.floor(this.$store.state.currentTime) >=
-        Math.floor(this.$store.state.duration)
+        Math.floor(this.currentTime) >=
+        Math.floor(this.duration)
       ) {
         this.goPlay(1)
       }
@@ -141,9 +141,9 @@ export default {
     },
     //当前歌词发生改变的时候，重新获取歌词
     currentSong(newVal) {
-      if (this.$store.state.playList.length !== 0) {
+      if (this.playList.length !== 0) {
         this.$store.dispatch('getLyric', {
-          id: this.$store.state.currentSong.id,
+          id: this.currentSong.id,
         })
       }
     },

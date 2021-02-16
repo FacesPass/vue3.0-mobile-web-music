@@ -1,6 +1,7 @@
 <template>
   <div class="play-controller">
-    <div class="left" @click="showBoard">
+    <div class="left"
+         @click="showBoard">
       <img :src="state.avatarUrl" />
       <div class="song-detail">
         <div class="name">{{ state.songName }}</div>
@@ -9,93 +10,88 @@
     </div>
 
     <div class="right">
-      <i
-        class="iconfont play-status"
-        :class="[state.isPlaying ? 'icon-zantingtingzhi' : 'icon-bofang']"
-        @click="playOrPause"
-      ></i>
-      <i class="iconfont icon-yinleliebiao-" @click="showPlayList"></i>
+      <i class="iconfont play-status"
+         :class="[state.isPlaying ? 'icon-zantingtingzhi' : 'icon-bofang']"
+         @click="playOrPause"></i>
+      <i class="iconfont icon-yinleliebiao-"
+         @click="showPlayList"></i>
     </div>
 
     <!-- 音乐播放进度条 -->
-    <van-slider
-      v-model="$store.state.currentTime"
-      active-color="#5292FE"
-      :max="$store.state.duration"
-      bar-height="1px"
-    >
+    <van-slider v-model="$store.state.currentTime"
+                active-color="#5292FE"
+                :max="$store.state.duration"
+                bar-height="1px">
       <template #button> </template>
     </van-slider>
 
     <!-- 音乐主面板 -->
     <transition name="bounce">
-      <MusicMainBoard
-        v-show="state.showBoard"
-        @back="hideBoard"
-        @change-progress="changeProgress"
-        @show-play-list="showPlayList"
-        @play-again="playAgain"
-        :bg="state.avatarUrl"
-        :isPlaying="state.isPlaying"
-        :playOrPause="playOrPause"
-        :songName="state.songName"
-        :author="state.author"
-      />
+      <MusicMainBoard v-show="state.showBoard"
+                      @back="hideBoard"
+                      @change-progress="changeProgress"
+                      @show-play-list="showPlayList"
+                      @play-again="playAgain"
+                      :bg="state.avatarUrl"
+                      :isPlaying="state.isPlaying"
+                      :playOrPause="playOrPause"
+                      :songName="state.songName"
+                      :author="state.author" />
     </transition>
 
-    <audio :ref="audioRef" :src="$store.state.currentSong.musicUrl"></audio>
+    <audio :ref="audioRef"
+           :src="$store.state.currentSong.musicUrl"></audio>
 
     <!-- 音乐播放列表弹框 -->
-    <van-popup
-      class="popup"
-      v-model:show="isShowPlayList"
-      :duration="0.08"
-      position="bottom"
-      :style="{ height: '45%' }"
-      ><div class="header">
+    <van-popup class="popup"
+               v-model:show="isShowPlayList"
+               :duration="0.08"
+               position="bottom"
+               :style="{ height: '45%' }">
+      <div class="header">
         <div>
-          <span class="text"
-            >播放列表
-            <span class="play-list-count"
-              >(共{{ $store.state.playList.length }}首)
+          <span class="text">播放列表
+            <span class="play-list-count">(共{{ $store.state.playList.length }}首)
             </span>
           </span>
         </div>
         <div>
-          <i class="iconfont icon-detail" @click="clearPlayList"></i>
-          <i class="iconfont icon-cha" @click="showPlayList"></i>
+          <i class="iconfont icon-detail"
+             @click="clearPlayList"></i>
+          <i class="iconfont icon-cha"
+             @click="showPlayList"></i>
         </div>
       </div>
       <div class="music-list">
-        <div
-          class="song-item"
-          :class="{
+        <div class="song-item"
+             :class="{
             playActive:
               currentSong.songName === song.songName &&
               currentSong.id === song.id,
           }"
-          v-for="(song, i) in $store.state.playList"
-          :key="song.id"
-          @click="playSong(song, i)"
-        >
+             v-for="(song, i) in $store.state.playList"
+             :key="song.id"
+             @click="playSong(song, i)">
           <div class="index">{{ i + 1 }}</div>
           <div class="song-detail">
             <div class="song-name">{{ song.songName }}</div>
             <div class="song-author">{{ song.author }}</div>
           </div>
           <div class="play-icon">
-            <i class="iconfont icon-yichu" @click.stop="removeSong(i)"></i>
+            <i class="iconfont icon-yichu"
+               @click.stop="removeSong(i)"></i>
           </div>
-        </div></div
-    ></van-popup>
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 
 <script>
 import MusicMainBoard from '../music-main-board'
 import { getSizeImage } from '@/utils/formatData'
-import { onMounted, onUpdated, reactive, watch, ref, nextTick } from 'vue'
-import { useStore, mapState, mapMutations } from 'vuex'
+import { onMounted, onUpdated, reactive, ref, nextTick } from 'vue'
+import { useStore, mapState } from 'vuex'
 import { Toast, Dialog } from 'vant'
 
 export default {
@@ -103,20 +99,20 @@ export default {
     MusicMainBoard,
   },
   computed: {
-    ...mapState(['currentSong', 'currentTime']),
+    ...mapState(['currentSong', 'currentTime', 'playList']),
   },
 
   watch: {
     //当前歌曲发生变化的时候就播放
     currentSong(newVal) {
-      if (this.$store.state.playList.length !== 0) {
+      if (this.playList.length) {
         this.state.isPlaying = true
         this.$nextTick(() => {
           this.audioDom.play()
           //在播放音乐后才能获得播放时长，所以这里设置延迟获取歌曲播放时长
           setTimeout(() => {
             this.$store.commit('changeDuration', this.audioDom.duration)
-          }, 1000)
+          }, 1800)
         })
         this.updateTime()
       } else {
@@ -144,7 +140,6 @@ export default {
     const isShowPlayList = ref(false)
 
     const isCurrentPlay = ref(false)
-    const activeEl = ref(null)
 
     const audioDom = ref(null)
     const audioRef = (el) => (audioDom.value = el)
@@ -250,7 +245,7 @@ export default {
           //TODO
           store.commit('clearPlayList')
         })
-        .catch(() => {})
+        .catch(() => { })
     }
 
     //拖动滚动条的时候就改变播放时间
@@ -288,7 +283,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import url('../../style.less');
+@import url("../../style.less");
 .play-controller {
   width: 7.5rem;
   position: fixed;
