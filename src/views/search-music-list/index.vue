@@ -1,31 +1,25 @@
 <template >
   <div class="songs-search">
-    <BackHeader title="搜索列表" :scrollHeight="50" />
+    <BackHeader title="搜索列表"
+                :scrollHeight="50" />
     <div class="bg"></div>
     <div class="play-all">
-      <div class="left" @click="playAllSongs">
+      <div class="left"
+           @click="playAllSongs">
         <i class="iconfont icon-bofang"></i>
-        <span
-          >播放全部<span class="song-count"
-            >(共{{ state.songCount }}首)</span
-          ></span
-        >
+        <span>播放全部<span class="song-count">(共{{ state.songCount }}首)</span></span>
       </div>
     </div>
-    <van-list
-      class="music-list"
-      v-model:loading="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      @load="onLoad"
-    >
-      <div
-        class="song-item"
-        :class="{ 'play-active': song.id === $store.state.currentSong.id }"
-        @click="play(song)"
-        v-for="(song, index) in state.songsList"
-        :key="song.album.id"
-      >
+    <van-list class="music-list"
+              v-model:loading="loading"
+              :finished="finished"
+              finished-text="没有更多了"
+              @load="onLoad">
+      <div class="song-item"
+           :class="{ 'play-active': song.id === $store.state.currentSong.id }"
+           @click="play(song)"
+           v-for="(song, index) in state.songsList"
+           :key="song.album.id">
         <div class="index">{{ index + 1 }}</div>
         <div class="song-detail">
           <div class="song-name">{{ song.name }}</div>

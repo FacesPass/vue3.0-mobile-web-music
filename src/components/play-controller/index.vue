@@ -112,7 +112,7 @@ export default {
           //在播放音乐后才能获得播放时长，所以这里设置延迟获取歌曲播放时长
           setTimeout(() => {
             this.$store.commit('changeDuration', this.audioDom.duration)
-          }, 1800)
+          }, 2200)
         })
         this.updateTime()
       } else {

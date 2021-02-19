@@ -23,17 +23,17 @@ export function parseLyric(lyricString) {
     if (line) {
       //找到字符串中的正则表达式的匹配
       const result = parseExp.exec(line);
-      if (!result) continue;
+      if (!result) continue
       //分钟
-      const min = result[1] * 60 * 1000;
+      const min = +result[1] * 60 * 1000
       //秒
-      const sec = result[2] * 1000;
+      const sec = +result[2] * 1000
       //毫秒
-      const milSec = result[3].length === 3 ? result[3] : result[3] * 10;
-      const time = min + sec + milSec;
-      const lyric = line.replace(parseExp, "").trim();
-      const lineObj = { time, lyric };
-      lyrics.push(lineObj);
+      const milSec = result[3].length === 3 ? +result[3] : +result[3] * 10
+      const time = min + sec + milSec
+      const lyric = line.replace(parseExp, "").trim()
+      const lineObj = { time, lyric }
+      lyrics.push(lineObj)
       //计算下一段时间，用于当前歌词的高亮展示
       lyrics.forEach((lyric, i) => {
         if (i !== lyrics.length - 1) {
@@ -42,5 +42,6 @@ export function parseLyric(lyricString) {
       })
     }
   }
+
   return lyrics;
 }
