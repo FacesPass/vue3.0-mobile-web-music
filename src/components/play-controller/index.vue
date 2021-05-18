@@ -22,9 +22,9 @@
       v-model="$store.state.currentTime"
       active-color="#5292FE"
       :max="$store.state.duration"
-      bar-height="1px"
+      bar-height="2px"
     >
-      <template #button> </template>
+      <template #button></template>
     </van-slider>
 
     <!-- 音乐主面板 -->
@@ -94,35 +94,21 @@
 <script>
 import MusicMainBoard from '../music-main-board'
 import { getSizeImage } from '@/utils/formatData'
-import { onMounted, onUpdated, reactive, watch, ref, nextTick } from 'vue'
-import { useStore, mapState, mapMutations } from 'vuex'
+import {
+  onMounted,
+  onUpdated,
+  reactive,
+  watch,
+  ref,
+  nextTick,
+  computed,
+} from 'vue'
+import { useStore, mapState } from 'vuex'
 import { Toast, Dialog } from 'vant'
 
 export default {
   components: {
     MusicMainBoard,
-  },
-  computed: {
-    ...mapState(['currentSong', 'currentTime']),
-  },
-
-  watch: {
-    //当前歌曲发生变化的时候就播放
-    currentSong(newVal) {
-      if (this.$store.state.playList.length !== 0) {
-        this.state.isPlaying = true
-        this.$nextTick(() => {
-          this.audioDom.play()
-          //在播放音乐后才能获得播放时长，所以这里设置延迟获取歌曲播放时长
-          setTimeout(() => {
-            this.$store.commit('changeDuration', this.audioDom.duration)
-          }, 1000)
-        })
-        this.updateTime()
-      } else {
-        this.state.isPlaying = false
-      }
-    },
   },
 
   setup() {
@@ -142,9 +128,7 @@ export default {
     })
 
     const isShowPlayList = ref(false)
-
     const isCurrentPlay = ref(false)
-    const activeEl = ref(null)
 
     const audioDom = ref(null)
     const audioRef = (el) => (audioDom.value = el)
@@ -166,6 +150,25 @@ export default {
       state.avatarUrl = getSizeImage(store.state.currentSong.avatarUrl, 150)
       state.author = store.state.currentSong.author
     })
+
+    watch(
+      () => store.state.currentSong,
+      (newVal, oldVal) => {
+        if (store.state.playList.length) {
+          state.isPlaying = true
+          nextTick(() => {
+            audioDom.value.play()
+          })
+          //在播放音乐后才能获得播放时长，所以这里设置延迟获取歌曲播放时长
+          setTimeout(() => {
+            store.commit('changeDuration', audioDom.value.duration)
+          }, 1000)
+          updateTime()
+        } else {
+          state.isPlaying = false
+        }
+      }
+    )
 
     //控制播放或者暂停
     function playOrPause() {
@@ -193,7 +196,7 @@ export default {
       }
       store.state.intervalId = setInterval(() => {
         store.commit('changeCurrentTime', audioDom.value.currentTime)
-      }, 800)
+      }, 1000)
     }
 
     //显示音乐面板
@@ -282,6 +285,8 @@ export default {
       removeSong,
       clearPlayList,
       playAgain,
+      currentTime: computed(() => store.state.currentTime),
+      currentSong: computed(() => store.state.currentSong),
     }
   },
 }

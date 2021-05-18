@@ -4,19 +4,19 @@ import { Toast } from 'vant'
 
 export default createStore({
   state: {
-    playList: [],   //播放列表
-    currentSongIndex: 0,  //当前播放歌曲下标
+    playList: [],           //播放列表
+    currentSongIndex: 0,    //当前播放歌曲下标
     currentSong: {
       songName: '暂无歌曲', //歌名
-      author: '暂无', //作者
-      avatarUrl: require('@/assets/img/music.png'),//头像地址
-      musicUrl: '',//cd图片地址
-    },  //当前播放歌曲，里面给一些默认初始数据
-    lyric: '',  //歌词
-    intervalId: '',  //定时器的id
-    sequence: 0, //播放状态：0 - 顺序播放  1 - 随机播放  2 - 单曲循环
-    currentTime: '', //当前歌曲播放进度时间
-    duration: '',//当前播放歌曲的总时长
+      author: '暂无',       //作者
+      avatarUrl: require('@/assets/img/music.png'), //头像地址
+      musicUrl: '',        //歌曲地址
+    },                      //当前播放歌曲，里面给一些默认初始数据
+    lyric: '',              //歌词
+    intervalId: '',         //定时器的id
+    sequence: 0,            //播放状态：0 - 顺序播放  1 - 随机播放  2 - 单曲循环
+    currentTime: '',        //当前歌曲播放进度时间
+    duration: '',           //当前播放歌曲的总时长
   },
   mutations: {
     //改变播放列表
@@ -30,9 +30,7 @@ export default createStore({
     //改变当前播放歌曲
     changeCurrentSong(state, currentSong) {
       try {  //如果列表中没有这首歌了则添加进列表，有的话就直接播放
-        let idx = state.playList.findIndex((item, i) => {
-          return currentSong.id === item.id
-        })
+        const idx = state.playList.findIndex(item => currentSong.id === item.id)
         if (idx === -1) {
           state.currentSong = currentSong
           state.playList.push(currentSong)
@@ -57,6 +55,7 @@ export default createStore({
     changeDuration(state, duration) {
       state.duration = duration
     },
+    //改变播放顺序
     changeSequence(state, payload) {
       state.sequence += 1
       if (state.sequence > 2) {
@@ -122,12 +121,11 @@ export default createStore({
     async getMusicUrl(context, payload) {
       try {
         const res = await getMusicUrl(payload.id)
-        // console.log(res)
         if (!res.data[0].url) {
           Toast('该歌曲暂时无法播放')
           return
         }
-        let currentSong = Object.assign({}, payload, { musicUrl: res.data[0].url })
+        const currentSong = Object.assign({}, payload, { musicUrl: res.data[0].url })
         context.commit('changeCurrentSong', currentSong)
       } catch (err) {
         console.log(err)

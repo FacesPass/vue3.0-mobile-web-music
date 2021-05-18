@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { getCurrentInstance, ref } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { mapState, useStore } from 'vuex'
 import { Toast } from 'vant'
 
@@ -120,47 +120,8 @@ export default {
     },
   },
 
-  computed: {
-    ...mapState(['currentTime', 'currentSong', 'duration']),
-  },
-
-  watch: {
-    //监听时间变化
-    currentTime(newVal) {
-      //当当前时间等于结束时间的时候，就自动播放下一首
-      if (
-        Math.floor(this.$store.state.currentTime) >=
-        Math.floor(this.$store.state.duration)
-      ) {
-        this.goPlay(1)
-      }
-      //歌词滚动
-      let el = document.querySelector('p.active')
-      if (!el) return
-      el.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    },
-    //当前歌词发生改变的时候，重新获取歌词
-    currentSong(newVal) {
-      if (this.$store.state.playList.length !== 0) {
-        this.$store.dispatch('getLyric', {
-          id: this.$store.state.currentSong.id,
-        })
-      }
-    },
-    isPlaying(newVal) {
-      if (newVal) {
-        this.rotateCdDom.style.webkitAnimationPlayState = 'running'
-      } else {
-        this.rotateCdDom.style.webkitAnimationPlayState = 'paused'
-      }
-    },
-  },
-
   setup(props, context) {
-    let isLyric = ref(false)
+    const isLyric = ref(false)
     const store = useStore()
 
     const rotateCdDom = ref(null)
@@ -168,8 +129,51 @@ export default {
 
     const sequnceIcon = ref('icon-xunhuanbofang1')
 
+    //监听时间变化
+    watch(
+      () => store.state.currentTime,
+      () => {
+        //当当前时间等于结束时间的时候，就自动播放下一首
+        if (
+          Math.floor(store.state.currentTime) >=
+          Math.floor(store.state.duration)
+        ) {
+          goPlay(1)
+        }
+        //歌词滚动
+        let el = document.querySelector('p.active')
+        if (!el) return
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }
+    )
+    //当前歌曲发生改变的时候，根据歌曲id重新获取歌词
+    watch(
+      () => store.state.currentSong,
+      () => {
+        if (store.state.playList.length) {
+          store.dispatch('getLyric', {
+            id: store.state.currentSong.id,
+          })
+        }
+      }
+    )
+
+    watch(
+      () => props.isPlaying,
+      (newVal) => {
+        if (newVal) {
+          rotateCdDom.value.style.webkitAnimationPlayState = 'running'
+        } else {
+          rotateCdDom.value.style.webkitAnimationPlayState = 'paused'
+        }
+      }
+    )
+
     //控制播放上一首和一下首（加个防抖）
-    let goPlay = debounce(function (num) {
+    const goPlay = debounce(function (num) {
       if (store.state.playList.length === 0) {
         return
       }
@@ -261,6 +265,9 @@ export default {
       formatTime,
       changeProgress,
       changeSequence,
+      currentTime: computed(() => store.state.currentTime),
+      currentSong: computed(() => store.state.currentSong),
+      duration: computed(() => store.state.duration),
     }
   },
 }

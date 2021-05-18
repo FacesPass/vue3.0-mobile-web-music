@@ -19,39 +19,26 @@
       finished-text="没有更多了"
       @load="onLoad"
     >
-      <div
-        class="song-item"
-        :class="{ 'play-active': song.id === $store.state.currentSong.id }"
-        @click="play(song)"
-        v-for="(song, index) in state.songsList"
-        :key="song.album.id"
-      >
-        <div class="index">{{ index + 1 }}</div>
-        <div class="song-detail">
-          <div class="song-name">{{ song.name }}</div>
-          <div class="song-author">{{ getAuthor(song.artists) }}</div>
-        </div>
-        <div class="play-icon">
-          <i class="iconfont icon-shenglvehao"></i>
-        </div>
-      </div>
+      <MusicList :state="state" />
     </van-list>
   </div>
 </template>
 
 <script>
-import { search, getSongDetail } from '@/service/api'
+import { search } from '@/service/api'
 import { useRoute } from 'vue-router'
 import { onMounted, reactive, ref } from 'vue'
-
-import BackHeader from '@/components/back-header'
 import { useStore } from 'vuex'
+import BackHeader from '@/components/back-header'
+import MusicList from './cpns/music-list'
+
 export default {
   props: {
     keyword: { type: String, requied: true },
   },
   components: {
     BackHeader,
+    MusicList,
   },
 
   setup() {
@@ -66,29 +53,6 @@ export default {
     })
     const loading = ref(false)
     const finished = ref(false)
-
-    function getAuthor(artist) {
-      let author = ''
-      artist.forEach((item) => {
-        author += item.name + ' '
-      })
-      return author
-    }
-
-    //播放歌曲
-    async function play(song) {
-      // console.log(song)
-      let author = getAuthor(song.artists)
-
-      const { songs } = await getSongDetail(song.id)
-
-      store.dispatch('getMusicUrl', {
-        id: songs[0].id,
-        songName: songs[0].name,
-        avatarUrl: songs[0].al.picUrl,
-        author: author,
-      })
-    }
 
     async function onLoad() {
       try {
@@ -108,8 +72,6 @@ export default {
 
     return {
       state,
-      getAuthor,
-      play,
       loading,
       finished,
       onLoad,
@@ -153,53 +115,6 @@ export default {
         margin-right: 0.15rem;
         font-size: 0.4rem;
       }
-    }
-  }
-
-  .music-list {
-    .song-item {
-      display: flex;
-      justify-content: space-around;
-      padding: 0.2rem 0;
-      border-bottom: 1px solid #ccc;
-      .index {
-        width: 1rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .song-detail {
-        width: 5rem;
-        display: flex;
-        flex-direction: column;
-        .song-name {
-          font-size: 0.28rem;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-        .song-author {
-          font-size: 0.26rem;
-          color: #a6a6a6;
-        }
-      }
-      .play-icon {
-        width: 1.5rem;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        .iconfont {
-          font-size: 0.42rem;
-          color: #a6a6a6;
-        }
-      }
-      &:last-child {
-        margin-bottom: 1.5rem;
-        border: none;
-      }
-    }
-    .play-active {
-      background-color: rgba(82, 146, 254, 0.3);
-      border-radius: 0.05rem;
     }
   }
 }
