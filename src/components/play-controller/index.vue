@@ -19,9 +19,9 @@
 
     <!-- 音乐播放进度条 -->
     <van-slider
-      v-model="$store.state.currentTime"
+      v-model="currentTime"
       active-color="#5292FE"
-      :max="$store.state.duration"
+      :max="duration"
       bar-height="2px"
     >
       <template #button></template>
@@ -43,7 +43,7 @@
       />
     </transition>
 
-    <audio :ref="audioRef" :src="$store.state.currentSong.musicUrl"></audio>
+    <audio :ref="audioRef" :src="currentSong.musicUrl"></audio>
 
     <!-- 音乐播放列表弹框 -->
     <van-popup
@@ -57,9 +57,7 @@
         <div>
           <span class="text"
             >播放列表
-            <span class="play-list-count"
-              >(共{{ $store.state.playList.length }}首)
-            </span>
+            <span class="play-list-count">(共{{ playList.length }}首) </span>
           </span>
         </div>
         <div>
@@ -75,7 +73,7 @@
               currentSong.songName === song.songName &&
               currentSong.id === song.id,
           }"
-          v-for="(song, i) in $store.state.playList"
+          v-for="(song, i) in playList"
           :key="song.id"
           @click="playSong(song, i)"
         >
@@ -105,7 +103,7 @@ import {
   nextTick,
   computed,
 } from 'vue'
-import { useStore, mapState } from 'vuex'
+import { useStore } from 'vuex'
 import { Toast, Dialog } from 'vant'
 
 export default {
@@ -155,7 +153,7 @@ export default {
 
     watch(
       () => store.state.currentSong,
-      (newVal, oldVal) => {
+      () => {
         if (store.state.playList.length) {
           state.isPlaying = true
           nextTick(() => {
@@ -165,6 +163,7 @@ export default {
           setTimeout(() => {
             store.commit('changeDuration', audioDom.value.duration)
           }, 1000)
+
           updateTime()
         } else {
           state.isPlaying = false
@@ -289,6 +288,7 @@ export default {
       playAgain,
       currentTime: computed(() => store.state.currentTime),
       currentSong: computed(() => store.state.currentSong),
+      playList: computed(() => store.state.playList),
     }
   },
 }

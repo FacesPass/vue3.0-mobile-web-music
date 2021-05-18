@@ -37,7 +37,7 @@
     <!-- 歌词列表 -->
     <div @click="showLyric" class="lyric" v-show="isLyric" ref="lyricRef">
       <p
-        v-for="(item, i) in $store.getters.lyricList"
+        v-for="(item, i) in lyricList"
         :key="i"
         :class="{
           active:
@@ -53,8 +53,8 @@
       <div class="current-time">{{ formatTime(currentTime) }}</div>
       <van-slider
         class="progress"
-        v-model="$store.state.currentTime"
-        :max="Math.floor($store.state.duration)"
+        v-model="currentTime"
+        :max="Math.floor(duration)"
         bar-height="4px"
         active-color="#5292FE"
         button-size="12px"
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { Toast } from 'vant'
 
@@ -141,7 +141,7 @@ export default {
           goPlay(1)
         }
         //歌词滚动
-        let el = document.querySelector('p.active')
+        const el = document.querySelector('p.active')
         if (!el) return
         el.scrollIntoView({
           behavior: 'smooth',
@@ -268,6 +268,7 @@ export default {
       currentTime: computed(() => store.state.currentTime),
       currentSong: computed(() => store.state.currentSong),
       duration: computed(() => store.state.duration),
+      lyricList: computed(() => store.getters.lyricList),
     }
   },
 }
