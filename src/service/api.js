@@ -63,6 +63,7 @@ export function getArtistDesc(id) {
   return request.get(`/artist/desc?id=${id}`)
 }
 
+
 //获取歌曲详情
 //传入音乐 id(支持多个 id, 用 , 隔开), 可获得歌曲详情(注意:歌曲封面现在需要通过专辑内容接口获取)
 export function getSongDetail(ids) {

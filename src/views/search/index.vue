@@ -1,68 +1,69 @@
 <template>
   <div class="search">
     <div class="nav-top">
-      <i class="iconfont icon-back" @click="$router.go(-1)"></i>
-      <form
-        class="form"
-        action="javascript:return true;"
-        @submit.prevent="() => false"
-      >
-        <input
-          class="input"
-          @keydown.enter="search"
-          v-model="state.keyword"
-          :placeholder="state.defaultKeyword"
-          @focus="state.isFocus = true"
-          @blur="blurInput"
-        />
+      <i class="iconfont icon-back"
+         @click="$router.go(-1)"></i>
+      <form class="form"
+            action="javascript:return true;"
+            @submit.prevent="() => false">
+        <input class="input"
+               @keydown.enter="search"
+               v-model="state.keyword"
+               :placeholder="state.defaultKeyword"
+               @focus="state.isFocus = true"
+               @blur="blurInput" />
       </form>
     </div>
     <!-- 搜索建议框 -->
-    <div class="search-suggest" v-show="state.isFocus && state.keyword">
-      <div class="suggest-item" @click="toSearchMusicList(state.keyword)">
+    <div class="search-suggest"
+         v-show="state.isFocus && state.keyword">
+      <div class="suggest-item"
+           @click="toSearchMusicList(state.keyword)">
         搜索 "{{ state.keyword }}"
       </div>
-      <div
-        class="suggest-item"
-        v-for="(item, i) in state.searchSuggestList"
-        :key="i"
-        @click="toSearchMusicList(item.keyword)"
-      >
+      <div class="suggest-item"
+           v-for="(item, i) in state.searchSuggestList"
+           :key="i"
+           @click="toSearchMusicList(item.keyword)">
         <i class="iconfont icon-search3-copy"></i>
         {{ item.keyword }}
       </div>
     </div>
     <!-- 历史搜索记录 -->
-    <div class="history" v-if="state.historySearch.length !== 0">
+    <div class="history"
+         v-if="state.historySearch.length !== 0">
       <div class="left">历史</div>
-      <div class="right" ref="rightHisRef">
-        <div class="content" ref="keywordHisRef">
-          <div
-            class="keyword-item"
-            v-for="(search, i) in state.historySearch"
-            :key="i"
-            @click="toSearchMusicList(search, true)"
-          >
+      <div class="right"
+           ref="rightHisRef">
+        <div class="content"
+             ref="keywordHisRef">
+          <div class="keyword-item"
+               v-for="(search, i) in state.historySearch"
+               :key="i"
+               @click="toSearchMusicList(search, true)">
             {{ search }}
           </div>
         </div>
       </div>
-      <i class="iconfont icon-detail" @click="clearHistory"></i>
+      <i class="iconfont icon-detail"
+         @click="clearHistory"></i>
     </div>
 
     <!-- 热搜榜单 -->
     <div class="hot-search">
-      <ItemHeader fontSize="0.3" title="热搜榜" :isShowRight="false" />
+      <ItemHeader fontSize="0.3"
+                  title="热搜榜"
+                  :isShowRight="false" />
       <div class="item-list">
-        <div
-          @click="toSearchMusicList(item.searchWord)"
-          class="item"
-          v-for="(item, i) in state.hotSearchList"
-          :key="i"
-        >
+        <div @click="toSearchMusicList(item.searchWord)"
+             class="item"
+             v-for="(item, i) in state.hotSearchList"
+             :key="i">
           <div class="index">{{ i + 1 }}</div>
           <div class="name">{{ item.searchWord }}</div>
-          <img v-if="item.iconUrl" class="icon" :src="item.iconUrl" />
+          <img v-if="item.iconUrl"
+               class="icon"
+               :src="item.iconUrl" />
         </div>
       </div>
     </div>
@@ -72,16 +73,16 @@
 <script>
 import BScroll from '@better-scroll/core'
 import { Dialog } from 'vant'
-import { nextTick, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import ItemHeader from '@/components/item-header'
-
 import {
   getDefaultKeyword,
   getSearchSuggest,
   getHotSearch,
 } from '@/service/api'
 import { debounce } from '@/utils/help'
-import { useRouter } from 'vue-router'
+
 export default {
   components: {
     ItemHeader,
@@ -200,7 +201,7 @@ export default {
           localStorage.clear('historySearch')
           state.historySearch = []
         })
-        .catch(() => {})
+        .catch(() => { })
     }
 
     return {
@@ -218,7 +219,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import url('../../style.less');
+@import url("../../style.less");
 .search {
   width: 7.5rem;
   height: 100vh;

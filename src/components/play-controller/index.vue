@@ -52,7 +52,8 @@
       :duration="0.08"
       position="bottom"
       :style="{ height: '45%' }"
-      ><div class="header">
+    >
+      <div class="header">
         <div>
           <span class="text"
             >播放列表
@@ -86,8 +87,9 @@
           <div class="play-icon">
             <i class="iconfont icon-yichu" @click.stop="removeSong(i)"></i>
           </div>
-        </div></div
-    ></van-popup>
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 

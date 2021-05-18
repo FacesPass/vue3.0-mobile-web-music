@@ -90,7 +90,7 @@
 
 <script>
 import { ref, computed, watch, nextTick } from 'vue'
-import { mapState, useStore } from 'vuex'
+import { useStore } from 'vuex'
 import { Toast } from 'vant'
 
 import { secToMin } from '@/utils/formatData'
