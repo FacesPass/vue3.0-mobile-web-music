@@ -1,4 +1,4 @@
-<template >
+<template>
   <div class="songs-search">
     <BackHeader title="搜索列表" :scrollHeight="50" />
     <div class="bg"></div>
@@ -25,12 +25,12 @@
 </template>
 
 <script>
-import { search } from '@/service/api'
-import { useRoute } from 'vue-router'
-import { onMounted, reactive, ref } from 'vue'
-import { useStore } from 'vuex'
-import BackHeader from '@/components/back-header'
-import MusicList from './cpns/music-list'
+import { search } from "@/service/api";
+import { useRoute } from "vue-router";
+import { onMounted, reactive, ref } from "vue";
+import { useStore } from "vuex";
+import BackHeader from "@/components/back-header";
+import MusicList from "./cpns/music-list";
 
 export default {
   props: {
@@ -42,31 +42,31 @@ export default {
   },
 
   setup() {
-    const route = useRoute()
-    const store = useStore()
+    const route = useRoute();
+    const store = useStore();
     const state = reactive({
       keyword: route.query.keyword,
       songCount: 0,
       currentPage: 0,
       hasMoreSong: true,
       songsList: [],
-    })
-    const loading = ref(false)
-    const finished = ref(false)
+    });
+    const loading = ref(false);
+    const finished = ref(false);
 
     async function onLoad() {
       try {
-        const res = await search(state.keyword, state.currentPage * 30)
+        const res = await search(state.keyword, state.currentPage * 30);
         if (res.result.songCount > state.songCount) {
-          state.songCount = res.result.songCount
+          state.songCount = res.result.songCount;
         }
-        let songs = res.result.songs
-        state.songsList.push(...songs)
-        state.currentPage++
-        state.hasMoreSong = res.result.hasMore
-        loading.value = false
+        let songs = res.result.songs;
+        state.songsList.push(...songs);
+        state.currentPage++;
+        state.hasMoreSong = res.result.hasMore;
+        loading.value = false;
       } catch (err) {
-        finished.value = true
+        finished.value = true;
       }
     }
 
@@ -75,9 +75,9 @@ export default {
       loading,
       finished,
       onLoad,
-    }
+    };
   },
-}
+};
 </script>
 
 <style lang="less" scoped>

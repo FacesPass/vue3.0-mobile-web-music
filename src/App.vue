@@ -12,12 +12,12 @@
 </template>
 
 <script>
-import PlayController from '@/components/play-controller'
+import PlayController from "@/components/play-controller";
 export default {
   components: {
     PlayController,
   },
-}
+};
 </script>
 
 <style lang="less">
@@ -25,7 +25,7 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: '微软雅黑';
+  font-family: "微软雅黑";
 }
 
 body {

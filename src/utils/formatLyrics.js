@@ -13,12 +13,12 @@
 
 // [00:31.160]如果场景里出现一架钢琴
 export function parseLyric(lyricString) {
+  console.log(lyricString)
   //匹配歌词的正则表达式
-  const parseExp = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+  const parseExp = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/
+  const lineStrings = lyricString.split("\n")
+  const lyrics = []
 
-  const lineStrings = lyricString.split("\n");
-
-  const lyrics = [];
   for (let line of lineStrings) {
     if (line) {
       //找到字符串中的正则表达式的匹配
@@ -42,6 +42,6 @@ export function parseLyric(lyricString) {
       })
     }
   }
-
+  console.log(lyrics)
   return lyrics;
 }

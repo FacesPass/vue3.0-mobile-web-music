@@ -105,7 +105,7 @@ export default createStore({
     async getLyric(context, payload) {
       try {
         const res = await getLyric(payload.id)
-        // console.log(res)
+        console.log(res)
         if (!res.lrc.lyric) {
           Toast('该歌曲暂无歌词')
           return

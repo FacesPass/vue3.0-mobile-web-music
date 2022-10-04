@@ -1,6 +1,6 @@
 <template>
   <div class="top-nav">
-    <div class="topLeft">
+    <div class="top-left">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-liebiao"></use>
       </svg>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-export default {}
+export default {};
 </script>
 
 <style lang="less" scoped>
@@ -36,10 +36,17 @@ export default {}
     height: 0.38rem;
   }
 
+  .top-left,
+  .top-right {
+    display: flex;
+  }
+
   .top-center {
     width: 4rem;
     display: flex;
     justify-content: space-around;
+    font-size: 0.4rem;
+    align-items: center;
     .active {
       font-weight: 900;
     }
